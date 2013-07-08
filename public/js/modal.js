@@ -155,6 +155,14 @@
         return removeClass(this.el, "in");
       };
 
+      Modal.prototype.toggle = function() {
+        if (this.isShown) {
+          return this.hide();
+        } else {
+          return this.show();
+        }
+      };
+
       return Modal;
 
     })();

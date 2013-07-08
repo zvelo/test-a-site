@@ -117,4 +117,6 @@ define [ "domReady", "template/modal" ], (domReady, tpl) ->
       document.body.removeChild @el
       removeClass @el, "in"
 
+    toggle: -> if @isShown then @hide() else @show()
+
   return Modal
