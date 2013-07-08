@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zveloNET Example</title>
+  </head>
+  <body>
+    <div id="zvelonet"></div>
+    <script>
+curl = {
+    baseUrl: "js",
+    paths: {
+        domReady:   "vendor/domReady",
+        handlebars: "vendor/handlebars"
+    },
+    packages: [{
+        name: "when",
+        location: "vendor/when",
+        main: "when"
+    }, {
+        name: "poly",
+        location: "vendor/poly",
+        main: "poly"
+    }, {
+        name: "hashmash",
+        location: "vendor/hashmash",
+        main: "hashmash"
+    }, {
+        name: "zvelonet",
+        location: "vendor/zvelonet",
+        main: "zvelonet"
+    }],
+    preloads: [
+        "poly/function",
+        "poly/json",
+        "poly/array"
+    ]
+};
+    </script>
+    <script src="/js/vendor/curl.js"></script>
+    <script>
+this.zvelo = {};
+curl([
+  "css!/css/vendor/bootstrap.css",
+  "css!/css/example.css",
+  "example"
+]).then(undefined, function(err) {
+    console.error(err.stack);
+  });
+    </script>
+  </body>
+</html>

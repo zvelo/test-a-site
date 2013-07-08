@@ -1,0 +1,3 @@
+[submodule "public/js/vendor/poly"]
+	path = public/js/vendor/poly
+	url = git@github.com:cujojs/poly.git
