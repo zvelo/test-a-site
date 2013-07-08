@@ -25,7 +25,6 @@ define [ "domReady", "template/modal" ], (domReady, tpl) ->
       @_configure()
       @el = Modal._createEl tpl(@ctx)
       addClass @el, "fade"
-      document.body.appendChild @el
 
       domReady @show.bind(this)
 
@@ -38,6 +37,17 @@ define [ "domReady", "template/modal" ], (domReady, tpl) ->
       container.innerHTML = html
       return container.firstChild
 
+    @_transitionEnd = (el, cb) ->
+      unless transitionEnd?
+        cb() if cb?
+        return
+
+      transitionEndFn = ->
+        el.removeEventListener transitionEnd, transitionEndFn, true
+        cb()
+
+      el.addEventListener transitionEnd, transitionEndFn, true
+
     _backdrop: (cb) ->
       that = this
 
@@ -49,32 +59,18 @@ define [ "domReady", "template/modal" ], (domReady, tpl) ->
         @backdrop.offsetWidth  ## force reflow
         addClass @backdrop, "in"
 
-        return unless cb?
-
-        if transitionEnd?
-          transitionEndFn = ->
-            that.backdrop.removeEventListener transitionEnd, transitionEndFn, true
-            cb()
-
-          @backdrop.addEventListener transitionEnd, transitionEndFn, true
-        else cb()
+        Modal._transitionEnd @backdrop, cb
       else if not @isShown and @backdrop?
         removeClass @backdrop, "in"
-
-        if transitionEnd?
-          transitionEndFn = ->
-            that.backdrop.removeEventListener transitionEnd, transitionEndFn, true
-            cb()
-
-          @backdrop.addEventListener transitionEnd, transitionEndFn, true
-        else cb()
-      else if cb? then cb()
+        Modal._transitionEnd @backdrop, cb
 
     show: ->
       return if @isShown
       @isShown = true
 
       that = this
+
+      document.body.appendChild @el
 
       @_backdrop ->
         that.el.style.display = "block"
@@ -87,23 +83,23 @@ define [ "domReady", "template/modal" ], (domReady, tpl) ->
       return unless @isShown
       @isShown = false
 
-      removeClass @el, "in"
+      that = this
 
-      if transitionEnd? then @hideWithTransition() else @hideModal()
+      removeClass @el, "in"
+      Modal._transitionEnd @el, ->
+        that.remove()
+        if transitionEnd? then that.hideWithTransition() else that.hideModal()
 
     hideWithTransition: ->
       that = this
 
       timeout = setTimeout(->
         that.hideModal()
-      , 7500)
+      , 500)
 
-      transitionEndFn = ->
-        that.el.removeEventListener transitionEnd, transitionEndFn, true
+      Modal._transitionEnd @el, ->
         clearTimeout timeout
         that.hideModal()
-
-      @el.addEventListener transitionEnd, transitionEndFn, true
 
       return this
 
@@ -116,5 +112,9 @@ define [ "domReady", "template/modal" ], (domReady, tpl) ->
     removeBackdrop: ->
       document.body.removeChild @backdrop if @backdrop?
       delete @backdrop
+
+    remove: ->
+      document.body.removeChild @el
+      removeClass @el, "in"
 
   return Modal

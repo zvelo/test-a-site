@@ -36,7 +36,6 @@
         this._configure();
         this.el = Modal._createEl(tpl(this.ctx));
         addClass(this.el, "fade");
-        document.body.appendChild(this.el);
         domReady(this.show.bind(this));
       }
 
@@ -51,8 +50,23 @@
         return container.firstChild;
       };
 
+      Modal._transitionEnd = function(el, cb) {
+        var transitionEndFn;
+        if (transitionEnd == null) {
+          if (cb != null) {
+            cb();
+          }
+          return;
+        }
+        transitionEndFn = function() {
+          el.removeEventListener(transitionEnd, transitionEndFn, true);
+          return cb();
+        };
+        return el.addEventListener(transitionEnd, transitionEndFn, true);
+      };
+
       Modal.prototype._backdrop = function(cb) {
-        var that, transitionEndFn;
+        var that;
         that = this;
         if (this.isShown) {
           this.backdrop = Modal._createEl("<div class=\"modal-backdrop\"/>");
@@ -65,31 +79,10 @@
           });
           this.backdrop.offsetWidth;
           addClass(this.backdrop, "in");
-          if (cb == null) {
-            return;
-          }
-          if (transitionEnd != null) {
-            transitionEndFn = function() {
-              that.backdrop.removeEventListener(transitionEnd, transitionEndFn, true);
-              return cb();
-            };
-            return this.backdrop.addEventListener(transitionEnd, transitionEndFn, true);
-          } else {
-            return cb();
-          }
+          return Modal._transitionEnd(this.backdrop, cb);
         } else if (!this.isShown && (this.backdrop != null)) {
           removeClass(this.backdrop, "in");
-          if (transitionEnd != null) {
-            transitionEndFn = function() {
-              that.backdrop.removeEventListener(transitionEnd, transitionEndFn, true);
-              return cb();
-            };
-            return this.backdrop.addEventListener(transitionEnd, transitionEndFn, true);
-          } else {
-            return cb();
-          }
-        } else if (cb != null) {
-          return cb();
+          return Modal._transitionEnd(this.backdrop, cb);
         }
       };
 
@@ -100,6 +93,7 @@
         }
         this.isShown = true;
         that = this;
+        document.body.appendChild(this.el);
         this._backdrop(function() {
           that.el.style.display = "block";
           that.el.offsetWidth;
@@ -109,30 +103,33 @@
       };
 
       Modal.prototype.hide = function() {
+        var that;
         if (!this.isShown) {
           return;
         }
         this.isShown = false;
+        that = this;
         removeClass(this.el, "in");
-        if (transitionEnd != null) {
-          return this.hideWithTransition();
-        } else {
-          return this.hideModal();
-        }
+        return Modal._transitionEnd(this.el, function() {
+          that.remove();
+          if (transitionEnd != null) {
+            return that.hideWithTransition();
+          } else {
+            return that.hideModal();
+          }
+        });
       };
 
       Modal.prototype.hideWithTransition = function() {
-        var that, timeout, transitionEndFn;
+        var that, timeout;
         that = this;
         timeout = setTimeout(function() {
           return that.hideModal();
-        }, 7500);
-        transitionEndFn = function() {
-          that.el.removeEventListener(transitionEnd, transitionEndFn, true);
+        }, 500);
+        Modal._transitionEnd(this.el, function() {
           clearTimeout(timeout);
           return that.hideModal();
-        };
-        this.el.addEventListener(transitionEnd, transitionEndFn, true);
+        });
         return this;
       };
 
@@ -151,6 +148,11 @@
           document.body.removeChild(this.backdrop);
         }
         return delete this.backdrop;
+      };
+
+      Modal.prototype.remove = function() {
+        document.body.removeChild(this.el);
+        return removeClass(this.el, "in");
       };
 
       return Modal;
