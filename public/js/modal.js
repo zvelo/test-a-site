@@ -28,7 +28,7 @@
     }
   })();
 
-  define(["domReady", "template/modal"], function(domReady, tpl) {
+  define(["template/modal"], function(tpl) {
     var Modal;
     Modal = (function() {
       function Modal(ctx) {
@@ -36,7 +36,6 @@
         this._configure();
         this.el = Modal._createEl(tpl(this.ctx));
         addClass(this.el, "fade");
-        domReady(this.show.bind(this));
       }
 
       Modal.prototype._configure = function() {

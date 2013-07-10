@@ -7,7 +7,7 @@ removeClass = (el, className) ->
   re = new RegExp "(?:^|\\s)#{className}(?!\\S)", 'g'
   el.className = el.className.replace re , ''
 
-transitionEnd = (->
+transitionEnd = ( ->
   el = document.createElement "zveloFakeElement"
   transEndEventNames =
     WebkitTransition: "webkitTransitionEnd"
@@ -19,14 +19,12 @@ transitionEnd = (->
     return transEndEventNames[name] if el.style[name]?
 )()
 
-define [ "domReady", "template/modal" ], (domReady, tpl) ->
+define [ "template/modal" ], (tpl) ->
   class Modal
     constructor: (@ctx) ->
       @_configure()
       @el = Modal._createEl tpl(@ctx)
       addClass @el, "fade"
-
-      domReady @show.bind(this)
 
     _configure: ->
       @ctx ?= {}
