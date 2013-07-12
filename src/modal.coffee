@@ -1,11 +1,14 @@
 "use strict"
 
+hasClass = (el, className) ->
+  return (' ' + el.className + ' ').indexOf(' ' + className + ' ') > -1
+
 addClass = (el, className) ->
   el.className += " #{className}"
 
 removeClass = (el, className) ->
   re = new RegExp "(?:^|\\s)#{className}(?!\\S)", 'g'
-  el.className = el.className.replace re , ''
+  el.className = el.className.replace re , ""
 
 transitionEnd = ( ->
   el = document.createElement "zveloFakeElement"
@@ -19,11 +22,21 @@ transitionEnd = ( ->
     return transEndEventNames[name] if el.style[name]?
 )()
 
-define [ "template/modal" ], (tpl) ->
+define [ "templates" ], (templates) ->
   class Modal
+    @hide = (cb) ->
+      unless Modal.shown?
+        cb() if cb?
+        return false
+
+      Modal.shown.hide cb
+      return true
+
     constructor: (@ctx) ->
       @_configure()
-      @el = Modal._createEl tpl(@ctx)
+
+      @el = Modal._createEl templates["modal"](@ctx)
+
       addClass @el, "fade"
 
     _configure: ->
@@ -64,9 +77,19 @@ define [ "template/modal" ], (tpl) ->
 
     show: ->
       return if @isShown
+      Modal.hide @_show.bind this
+      return this
+
+    _show: ->
+      return if @isShown or Modal.shown?
+      Modal.shown = this
       @isShown = true
 
       that = this
+
+      if @ctx.close
+        @onKeyUp = (ev) -> that.hide() if ev.which is 27  ## escape
+        document.body.addEventListener "keyup", @onKeyUp, true
 
       document.body.appendChild @el
 
@@ -75,43 +98,59 @@ define [ "template/modal" ], (tpl) ->
         that.el.offsetWidth  ## force reflow
         addClass that.el, "in"
 
-      return this
+        if that.ctx.btn
+          btn = that.el.getElementsByClassName("btn btn-primary")[0]
+          btn.addEventListener "click", that.ctx.onBtn.bind(that), true if that.ctx.onBtn?
 
-    hide: ->
-      return unless @isShown
+        if that.ctx.close
+          closeBtn = that.el.getElementsByClassName("btn btn-close")[0]
+          closeBtn.addEventListener "click", that.hide.bind(that), true
+
+          xBtn = that.el.getElementsByClassName("close")[0]
+          xBtn.addEventListener "click", that.hide.bind(that), true
+
+    hide: (cb) ->
+      return unless @isShown and Modal.shown is this
+      delete Modal.shown
       @isShown = false
 
       that = this
 
       removeClass @el, "in"
       Modal._transitionEnd @el, ->
-        that.remove()
-        if transitionEnd? then that.hideWithTransition() else that.hideModal()
+        that._remove()
+        if transitionEnd? then that._hideWithTransition(cb) else that._hideModal(cb)
 
-    hideWithTransition: ->
+      return this
+
+    _hideWithTransition: (cb) ->
       that = this
 
       timeout = setTimeout(->
-        that.hideModal()
+        that._hideModal cb
       , 500)
 
       Modal._transitionEnd @el, ->
         clearTimeout timeout
-        that.hideModal()
+        that._hideModal cb
 
       return this
 
-    hideModal: ->
+    _hideModal: (cb) ->
       @el.style.display = "none"
       that = this
-      @_backdrop -> that.removeBackdrop()
+      @_backdrop -> that._removeBackdrop cb
       return this
 
-    removeBackdrop: ->
+    _removeBackdrop: (cb) ->
       document.body.removeChild @backdrop if @backdrop?
       delete @backdrop
 
-    remove: ->
+      document.body.removeEventListener "keyup", @onKeyUp, true if @onKeyUp?
+      @ctx.onClose this if @ctx.onClose?
+      cb this if cb?
+
+    _remove: ->
       document.body.removeChild @el
       removeClass @el, "in"
 

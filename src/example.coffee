@@ -4,11 +4,11 @@ define [
   "domReady"
   "zvelonet"
   "modal"
-  "template/example"
-], (domReady, ZveloNET, Modal, exampleTpl) ->
+  "templates"
+], (domReady, ZveloNET, Modal, templates) ->
   class Example
     constructor: ->
-      @show exampleTpl
+      @_modals = {}  ## TODO(jrubin) do we really still need this?
 
       @_zn = new ZveloNET
         znhost: "http://10.211.55.130:3333"  ## TODO(jrubin) delete
@@ -16,60 +16,83 @@ define [
         password: "7j25jx7XVAe"
         hashMashWorker: "/js/vendor/hashmash/worker.min.js"
 
-      window.zn = @_zn ## TODO(jrubin) delete this
       domReady @onDomReady.bind(this)
 
     onDomReady: ->
-      @setupListeners()
-      @loadingModal "show"
-      @_zn.ready.then @ready.bind(this)
+      @show "lookup"
+      @showLoading()
+      @_zn.ready.then @lookupReady.bind(this)
 
-    show: (tpl) -> domReady ->
+    show: (tpl, ctx) ->
       el = document.getElementById "zvelonet"
-      el.innerHTML = tpl()
+      el.innerHTML = templates[tpl] ctx
 
-    loadingModal: (action) ->
-      @_loadingModal ?= new Modal
+      ## setup listeners
+      @_tpl = {}
+      switch tpl
+        when "lookup"
+          @_tpl =
+            form:  el.getElementsByTagName("form")[0]
+            field: el.getElementsByTagName("input")[0]
+          @_tpl.form.addEventListener "submit", @submit.bind(this)
+          @_tpl.field.focus()
+        when "result"
+          @_tpl =
+            btn: el.getElementsByTagName("button")[0]
+          @_tpl.btn.addEventListener "click", @show.bind(this, "lookup")
+          @_tpl.btn.focus()
+
+    showError: ->
+      for arg in arguments
+        if typeof arg is "function" then cb = arg
+        else err = arg
+
+      new Modal(
+        header: "Error!"
+        close: "Dismiss"
+        body: err
+        onClose: cb).show()
+
+    showLoading: ->
+      new Modal(
         header: "Loading..."
-        body: "Initializing zveloNET..."
+        body: "Initializing zveloNET...").show()
 
-      window.modal = @_loadingModal  ## TODO(jrubin) delete this
+    authorizingModal: (action) ->
+      action ?= "show"
 
-      @_loadingModal[action]()
-
-    lookupModal: (action) ->
-      @_lookupModal ?= new Modal
+      @_modals["authorizing"] ?= new Modal
         header: "Authorizing..."
         body: "Verifying user credentials..."
 
-      @_lookupModal[action]()
+      @_modals["authorizing"][action]()
 
-    setupListeners: ->
-      @_form  = document.getElementById "zvelo-lookup"
-      @_field = document.getElementById "zvelo-url"
-      @_form.addEventListener "submit", @submit.bind(this)
-
-    ready: ->
-      @_loadingModal.hide()
-      @_field.focus()
+    lookupReady: ->
+      Modal.hide()
+      @_tpl.field.focus()
 
     submit: (ev) ->
       try
         ev.preventDefault()
-        val = @_field.value
+        val = @_tpl.field.value
+        @_tpl.field.blur()
         return unless val?.length
 
-        @lookupModal "show"
-
-        @_zn.lookup(url: val, reputation: true)
+        @_zn.lookup(
+          url: val
+          reputation: true
+          onHashMash: @authorizingModal.bind(this, "show")
+          onAjax: console.log.bind console, "ajax")  ## TODO(jrubin)
           .then(@onResponse.bind this)
-          .otherwise((err) -> throw err)
-
+          .otherwise(@showError.bind(this, @lookupReady.bind(this)))
       catch e
         console.error e.stack
+        @showError e.message, @lookupReady.bind(this)
 
     onResponse: (data) ->
       console.log "got data", data
-      @lookupModal "hide"
+      Modal.hide()
+      ## TODO(jrubin) check for uncat, show that template
+      @show "result", data
 
   return new Example

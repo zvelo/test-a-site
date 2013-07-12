@@ -1,6 +1,10 @@
 (function() {
   "use strict";
-  var addClass, removeClass, transitionEnd;
+  var addClass, hasClass, removeClass, transitionEnd;
+
+  hasClass = function(el, className) {
+    return (' ' + el.className + ' ').indexOf(' ' + className + ' ') > -1;
+  };
 
   addClass = function(el, className) {
     return el.className += " " + className;
@@ -9,7 +13,7 @@
   removeClass = function(el, className) {
     var re;
     re = new RegExp("(?:^|\\s)" + className + "(?!\\S)", 'g');
-    return el.className = el.className.replace(re, '');
+    return el.className = el.className.replace(re, "");
   };
 
   transitionEnd = (function() {
@@ -28,13 +32,24 @@
     }
   })();
 
-  define(["template/modal"], function(tpl) {
+  define(["templates"], function(templates) {
     var Modal;
     Modal = (function() {
+      Modal.hide = function(cb) {
+        if (Modal.shown == null) {
+          if (cb != null) {
+            cb();
+          }
+          return false;
+        }
+        Modal.shown.hide(cb);
+        return true;
+      };
+
       function Modal(ctx) {
         this.ctx = ctx;
         this._configure();
-        this.el = Modal._createEl(tpl(this.ctx));
+        this.el = Modal._createEl(templates["modal"](this.ctx));
         addClass(this.el, "fade");
       }
 
@@ -86,70 +101,110 @@
       };
 
       Modal.prototype.show = function() {
-        var that;
         if (this.isShown) {
           return;
         }
-        this.isShown = true;
-        that = this;
-        document.body.appendChild(this.el);
-        this._backdrop(function() {
-          that.el.style.display = "block";
-          that.el.offsetWidth;
-          return addClass(that.el, "in");
-        });
+        Modal.hide(this._show.bind(this));
         return this;
       };
 
-      Modal.prototype.hide = function() {
+      Modal.prototype._show = function() {
         var that;
-        if (!this.isShown) {
+        if (this.isShown || (Modal.shown != null)) {
           return;
         }
-        this.isShown = false;
+        Modal.shown = this;
+        this.isShown = true;
         that = this;
-        removeClass(this.el, "in");
-        return Modal._transitionEnd(this.el, function() {
-          that.remove();
-          if (transitionEnd != null) {
-            return that.hideWithTransition();
-          } else {
-            return that.hideModal();
+        if (this.ctx.close) {
+          this.onKeyUp = function(ev) {
+            if (ev.which === 27) {
+              return that.hide();
+            }
+          };
+          document.body.addEventListener("keyup", this.onKeyUp, true);
+        }
+        document.body.appendChild(this.el);
+        return this._backdrop(function() {
+          var btn, closeBtn, xBtn;
+          that.el.style.display = "block";
+          that.el.offsetWidth;
+          addClass(that.el, "in");
+          if (that.ctx.btn) {
+            btn = that.el.getElementsByClassName("btn btn-primary")[0];
+            if (that.ctx.onBtn != null) {
+              btn.addEventListener("click", that.ctx.onBtn.bind(that), true);
+            }
+          }
+          if (that.ctx.close) {
+            closeBtn = that.el.getElementsByClassName("btn btn-close")[0];
+            closeBtn.addEventListener("click", that.hide.bind(that), true);
+            xBtn = that.el.getElementsByClassName("close")[0];
+            return xBtn.addEventListener("click", that.hide.bind(that), true);
           }
         });
       };
 
-      Modal.prototype.hideWithTransition = function() {
-        var that, timeout;
+      Modal.prototype.hide = function(cb) {
+        var that;
+        if (!(this.isShown && Modal.shown === this)) {
+          return;
+        }
+        delete Modal.shown;
+        this.isShown = false;
         that = this;
-        timeout = setTimeout(function() {
-          return that.hideModal();
-        }, 500);
+        removeClass(this.el, "in");
         Modal._transitionEnd(this.el, function() {
-          clearTimeout(timeout);
-          return that.hideModal();
+          that._remove();
+          if (transitionEnd != null) {
+            return that._hideWithTransition(cb);
+          } else {
+            return that._hideModal(cb);
+          }
         });
         return this;
       };
 
-      Modal.prototype.hideModal = function() {
+      Modal.prototype._hideWithTransition = function(cb) {
+        var that, timeout;
+        that = this;
+        timeout = setTimeout(function() {
+          return that._hideModal(cb);
+        }, 500);
+        Modal._transitionEnd(this.el, function() {
+          clearTimeout(timeout);
+          return that._hideModal(cb);
+        });
+        return this;
+      };
+
+      Modal.prototype._hideModal = function(cb) {
         var that;
         this.el.style.display = "none";
         that = this;
         this._backdrop(function() {
-          return that.removeBackdrop();
+          return that._removeBackdrop(cb);
         });
         return this;
       };
 
-      Modal.prototype.removeBackdrop = function() {
+      Modal.prototype._removeBackdrop = function(cb) {
         if (this.backdrop != null) {
           document.body.removeChild(this.backdrop);
         }
-        return delete this.backdrop;
+        delete this.backdrop;
+        if (this.onKeyUp != null) {
+          document.body.removeEventListener("keyup", this.onKeyUp, true);
+        }
+        if (this.ctx.onClose != null) {
+          this.ctx.onClose(this);
+        }
+        if (cb != null) {
+          return cb(this);
+        }
       };
 
-      Modal.prototype.remove = function() {
+      Modal.prototype._remove = function() {
         document.body.removeChild(this.el);
         return removeClass(this.el, "in");
       };

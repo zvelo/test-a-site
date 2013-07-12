@@ -19,20 +19,18 @@ module.exports = (grunt) ->
 
     handlebars:
       options:
-        namespace: false
+        processName: (name) ->
+          name.split('/')[1..].join('/').replace /\.hbs$/, ""
         amd: true
 
       main:
-        expand: true
-        cwd: "templates"
-        src: "**/*.hbs"
-        dest: "public/js/template"
-        ext: ".js"
+        src: "templates/**/*.hbs"
+        dest: "public/js/templates.js"
 
     stylus:
       main:
         expand: true
-        cwd: "src"
+        cwd: "styl"
         src: "**/*.styl"
         dest: "public/css"
         ext: ".css"
@@ -69,7 +67,7 @@ module.exports = (grunt) ->
         files: "src/**/*.coffee"
         tasks: [ "coffeelint:src", "coffee:main" ]
       stylus:
-        files: "src/**/*.styl"
+        files: "styl/**/*.styl"
         tasks: "stylus:main"
       handlebars:
         files: "templates/**/*.hbs"
