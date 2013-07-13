@@ -1,11 +1,13 @@
 (function() {
   "use strict";
-  define(["domReady", "zvelonet", "modal", "templates"], function(domReady, ZveloNET, Modal, templates) {
-    var Example;
+  define(["domReady", "sizzle", "zvelonet", "modal", "templates"], function(domReady, Sizzle, ZveloNET, Modal, templates) {
+    var Example, getEl;
+    getEl = function(selector) {
+      return Sizzle("#zvelonet " + (selector || ""))[0];
+    };
     Example = (function() {
       function Example() {
-        this._modals = {};
-        this._zn = new ZveloNET({
+        this.zn = new ZveloNET({
           znhost: "http://10.211.55.130:3333",
           username: "zvelo.com",
           password: "7j25jx7XVAe",
@@ -15,35 +17,55 @@
       }
 
       Example.prototype.onDomReady = function() {
-        this.show("lookup");
-        this.showLoading();
-        return this._zn.ready.then(this.lookupReady.bind(this));
+        var defaultUrl, last, next, _ref, _ref1;
+        this.showLoadingModal();
+        next = this.zn.ready.then(this.znReady.bind(this)).then(this.show.bind(this, "lookup"));
+        defaultUrl = typeof window !== "undefined" && window !== null ? (_ref = window.location) != null ? (_ref1 = _ref.hash) != null ? _ref1.slice(1) : void 0 : void 0 : void 0;
+        if (defaultUrl) {
+          last = next.then(this.doLookup.bind(this, defaultUrl));
+        } else {
+          last = next.then(Modal.hide);
+        }
+        return last.otherwise(this.showErrorModal.bind(this));
+      };
+
+      Example.prototype.znReady = function() {
+        var categories;
+        categories = ZveloNET.categorySort(this.zn["categories.txt"]);
+        return this.categories = categories.filter(function(value) {
+          if (value.name.indexOf("Custom User Type ") === 0) {
+            return false;
+          }
+          return true;
+        });
       };
 
       Example.prototype.show = function(tpl, ctx) {
-        var el;
-        el = document.getElementById("zvelonet");
-        el.innerHTML = templates[tpl](ctx);
-        this._tpl = {};
+        var lookup;
+        this.ctx = ctx || {};
+        getEl().innerHTML = templates[tpl](this.ctx);
+        lookup = getEl(".btn.lookup");
+        if (lookup != null) {
+          lookup.addEventListener("click", this.show.bind(this, "lookup"));
+        }
         switch (tpl) {
           case "lookup":
-            this._tpl = {
-              form: el.getElementsByTagName("form")[0],
-              field: el.getElementsByTagName("input")[0]
-            };
-            this._tpl.form.addEventListener("submit", this.submit.bind(this));
-            return this._tpl.field.focus();
+            getEl("input").focus();
+            return getEl("form").addEventListener("submit", this.submitLookup.bind(this));
           case "result":
-            this._tpl = {
-              btn: el.getElementsByTagName("button")[0]
-            };
-            this._tpl.btn.addEventListener("click", this.show.bind(this, "lookup"));
-            return this._tpl.btn.focus();
+            lookup.focus();
+            return getEl(".btn.report").addEventListener("click", this.show.bind(this, "report", {
+              url: this.ctx.url,
+              categories: this.categories
+            }));
+          case "report":
+            getEl("form").addEventListener("submit", this.submitReport.bind(this));
+            return getEl("select").focus();
         }
       };
 
-      Example.prototype.showError = function() {
-        var arg, cb, err, _i, _len;
+      Example.prototype.showErrorModal = function() {
+        var arg, cb, err, wrappedCb, _i, _len;
         for (_i = 0, _len = arguments.length; _i < _len; _i++) {
           arg = arguments[_i];
           if (typeof arg === "function") {
@@ -52,66 +74,104 @@
             err = arg;
           }
         }
+        if (typeof console !== "undefined" && console !== null) {
+          console.error(err);
+        }
+        console.log("error cb", cb);
+        wrappedCb = function() {
+          this.hide();
+          if (cb != null) {
+            return cb();
+          }
+        };
         return new Modal({
           header: "Error!",
-          close: "Dismiss",
+          btn: "Dismiss",
           body: err,
-          onClose: cb
+          onBtn: wrappedCb
         }).show();
       };
 
-      Example.prototype.showLoading = function() {
+      Example.prototype.showWarning = function(body, cb) {
+        var wrappedCb;
+        wrappedCb = function() {
+          this.hide();
+          if (cb != null) {
+            return cb();
+          }
+        };
+        return new Modal({
+          header: "Warning",
+          body: body,
+          btn: "OK",
+          onBtn: wrappedCb
+        }).show();
+      };
+
+      Example.prototype.showLoadingModal = function() {
         return new Modal({
           header: "Loading...",
           body: "Initializing zveloNET..."
         }).show();
       };
 
-      Example.prototype.authorizingModal = function(action) {
-        var _base;
-        if (action == null) {
-          action = "show";
-        }
-        if ((_base = this._modals)["authorizing"] == null) {
-          _base["authorizing"] = new Modal({
-            header: "Authorizing...",
-            body: "Verifying user credentials..."
-          });
-        }
-        return this._modals["authorizing"][action]();
+      Example.prototype.showAuthorizingModal = function() {
+        return new Modal({
+          header: "Authorizing...",
+          body: "Verifying user credentials..."
+        }).show();
       };
 
-      Example.prototype.lookupReady = function() {
-        Modal.hide();
-        return this._tpl.field.focus();
+      Example.prototype.doLookup = function(url) {
+        return this.zn.lookup({
+          url: url,
+          reputation: true,
+          onHashMash: this.showAuthorizingModal.bind(this, "show"),
+          onAjax: console.log.bind(console, "ajax")
+        }).then(this.onLookupResponse.bind(this)).otherwise(this.showErrorModal.bind(this, this.show.bind(this, "lookup")));
       };
 
-      Example.prototype.submit = function(ev) {
-        var e, val;
-        try {
-          ev.preventDefault();
-          val = this._tpl.field.value;
-          this._tpl.field.blur();
-          if (!(val != null ? val.length : void 0)) {
-            return;
-          }
-          return this._zn.lookup({
-            url: val,
-            reputation: true,
-            onHashMash: this.authorizingModal.bind(this, "show"),
-            onAjax: console.log.bind(console, "ajax")
-          }).then(this.onResponse.bind(this)).otherwise(this.showError.bind(this, this.lookupReady.bind(this)));
-        } catch (_error) {
-          e = _error;
-          console.error(e.stack);
-          return this.showError(e.message, this.lookupReady.bind(this));
+      Example.prototype.doReport = function(url, categoryId) {
+        return this.zn.report({
+          url: url,
+          categoryIds: [categoryId],
+          onHashMash: this.showAuthorizingModal.bind(this, "show"),
+          onAjax: console.log.bind(console, "ajax")
+        }).then(this.onReportResponse.bind(this)).otherwise(this.showErrorModal.bind(this));
+      };
+
+      Example.prototype.submitLookup = function(ev) {
+        var url;
+        ev.preventDefault();
+        document.activeElement.blur();
+        url = getEl("input").value;
+        if (!(url != null ? url.length : void 0)) {
+          return;
         }
+        return this.doLookup(url);
       };
 
-      Example.prototype.onResponse = function(data) {
-        console.log("got data", data);
+      Example.prototype.submitReport = function(ev) {
+        var categoryId, url, _ref;
+        ev.preventDefault();
+        document.activeElement.blur();
+        categoryId = parseInt((_ref = getEl("select :selected")) != null ? _ref.value : void 0, 10);
+        if (isNaN(categoryId)) {
+          return this.showWarning("Please choose a category");
+        }
+        url = getEl(".url").textContent;
+        console.log("submitReport", ev, url, categoryId);
+        return this.doReport(url, categoryId);
+      };
+
+      Example.prototype.onLookupResponse = function(data) {
         Modal.hide();
         return this.show("result", data);
+      };
+
+      Example.prototype.onReportResponse = function(data) {
+        Modal.hide();
+        return console.log("onReportResponse", data);
       };
 
       return Example;

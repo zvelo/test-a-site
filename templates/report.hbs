@@ -1,0 +1,17 @@
+<form>
+  <p class="lead url">{{url}}</p>
+
+  <div class="categories">
+    <select>
+      <option value="">-- Suggest a Category --</option>
+      {{#each categories}}
+      <option value="{{this.id}}">{{this.name}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="controls">
+    <button type="submit" class="btn btn-danger report">Report Miscategorization</button>
+    <button type="button" class="btn btn-primary lookup">Return to Lookup</button>
+  </div>
+</form>
