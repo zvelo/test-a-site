@@ -28,12 +28,68 @@ module.exports = (grunt) ->
         dest: "public/js/templates.js"
 
     stylus:
+      options:
+        "include css": true
       main:
         expand: true
         cwd: "styl"
         src: "**/*.styl"
         dest: "public/css"
         ext: ".css"
+
+    requirejs:
+      options:
+        baseUrl: "public/js"
+        name: "almond"
+        generateSourceMaps: true
+        preserveLicenseComments: false
+        paths:
+          almond:   "../../node_modules/almond/almond"
+          domReady:   "vendor/domReady"
+          handlebars: "vendor/handlebars"
+        packages: [
+          name:     "when"
+          location: "../../node_modules/when"
+          main:     "when"
+        ,
+          name:     "poly"
+          location: "vendor/poly"
+          main:     "poly"
+        ,
+          name:     "hashmash"
+          location: "../../node_modules/hashmash"
+          main:     "hashmash"
+        ,
+          name:     "zvelonet"
+          location: "../../node_modules/zveloNET.js"
+          main:     "zvelonet"
+        ]
+        optimize: "uglify2"
+        wrap: true
+        uglify2:
+          output:
+            comments: (node, comment) ->
+              text = comment.value
+              type = comment.type
+              if type is "comment2"
+                ## multiline comment
+                return /@preserve|@license|@cc_on/i.test text
+
+      "example.min.js":
+        options:
+          include: [
+            "poly/function"
+            "poly/json"
+            "poly/array"
+            "example"
+          ]
+          insertRequire: [
+            "poly/function"
+            "poly/json"
+            "poly/array"
+            "example"
+          ]
+          out: "public/js/example.min.js"
 
     coffeelint:
       options:
@@ -65,7 +121,7 @@ module.exports = (grunt) ->
     watch:
       coffee:
         files: "src/**/*.coffee"
-        tasks: [ "coffeelint:src", "coffee:main" ]
+        tasks: [ "coffeelint:src", "coffee:main", "requirejs" ]
       stylus:
         files: "styl/**/*.styl"
         tasks: "stylus:main"
@@ -82,6 +138,7 @@ module.exports = (grunt) ->
           "coffee:main"
           "handlebars:main"
           "stylus:main"
+          "requirejs"
         ]
 
   grunt.loadNpmTasks "grunt-coffeelint"
@@ -89,6 +146,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-contrib-watch"
   grunt.loadNpmTasks "grunt-contrib-coffee"
   grunt.loadNpmTasks "grunt-contrib-stylus"
+  grunt.loadNpmTasks "grunt-contrib-requirejs"
   grunt.loadNpmTasks "grunt-contrib-handlebars"
 
   grunt.registerMultiTask "build", "Build project files", ->

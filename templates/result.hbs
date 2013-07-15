@@ -1,22 +1,20 @@
-<div class="left">
-  <p class="lead url">{{url}}</p>
+<div class="row-fluid">
+  <div class="span10">
+    <p class="lead url" title="{{url}}">{{url}}</p>
+  </div>
 
-  <div class="categories">
-    <ul class="inline">
-      {{#each categories}}
-      <li><span class="btn btn-large btn-inverse category" disabled>{{this}}</span></li>
-      {{/each}}
-    </ul>
+  <div class="span2 reputation {{reputationId}}">
+    <p>{{reputation}}</p>
   </div>
 </div>
 
-<div class="right reputation {{reputationId}}">
-  <p>{{reputation}}</p>
+<div class="categories row-fluid">
+  {{#each categories}}
+  <span class="span4 btn btn-large btn-inverse category" disabled>{{this}}</span>
+  {{/each}}
 </div>
 
-<div class="clearfix"></div>
-
-<div class="controls">
-  <button class="btn btn-primary lookup">Lookup Another</button>
-  <button class="btn btn-warning report">Report Miscategorization</button>
+<div class="controls row-fluid">
+  <button class="span3 btn btn-large btn-primary lookup" title="Lookup another URL">Lookup Another</button>
+  <button class="span3 btn btn-large btn-warning report" title="Report this URL as miscategorized">Miscategorized?</button>
 </div>

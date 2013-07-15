@@ -1,3 +1,5 @@
+@import "../public/css/vendor/bootstrap.css"
+@import "../public/css/vendor/bootstrap-responsive.css"
 @import "nib"
 
 body
@@ -5,6 +7,9 @@ body
   background-color #f5f5f5
 
 #zvelonet
+  max-width 1170px
+  margin-right auto
+  margin-left auto
   border 1px solid #e5e5e5
   background-color #fff
   padding 2rem
@@ -14,11 +19,17 @@ body
     margin 0
 
   $url-font-size   =   2rem
-  $url-line-height = 2.2rem
+  $url-line-height = 2.5rem
 
-  .url,
-  .categories
-    margin 0 0 1rem
+  .categories,
+  .controls
+    margin-top 1rem
+
+  .btn
+    margin-top 0.5rem
+
+  .controls .btn
+    overflow: ellipsis
 
   .left
     float left
@@ -27,6 +38,7 @@ body
     float right
 
   .url
+    overflow ellipsis
     font-size $url-font-size
     line-height $url-line-height
 

@@ -6,7 +6,7 @@
     <title>zveloNET Example</title>
   </head>
   <body>
-    <div id="zvelonet" class="container"></div>
+    <div id="zvelonet" class="container-fluid"></div>
     <script>
 curl = {
     baseUrl: "js",
@@ -15,21 +15,21 @@ curl = {
         handlebars: "vendor/handlebars"
     },
     packages: [{
-        name: "when",
+        name:     "when",
         location: "vendor/when",
-        main: "when"
+        main:     "when"
     }, {
-        name: "poly",
+        name:     "poly",
         location: "vendor/poly",
-        main: "poly"
+        main:     "poly"
     }, {
-        name: "hashmash",
+        name:     "hashmash",
         location: "vendor/hashmash",
-        main: "hashmash"
+        main:     "hashmash"
     }, {
-        name: "zvelonet",
+        name:     "zvelonet",
         location: "vendor/zvelonet",
-        main: "zvelonet"
+        main:     "zvelonet"
     }],
     preloads: [
         "poly/function",
@@ -42,7 +42,6 @@ curl = {
     <script>
 this.zvelo = {};
 curl([
-  "css!/css/vendor/bootstrap.css",
   "css!/css/example.css",
   "example"
 ]).then(undefined, function(err) {

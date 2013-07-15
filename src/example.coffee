@@ -12,10 +12,10 @@ define [
   class Example
     constructor: ->
       @zn = new ZveloNET
-        znhost: "http://10.211.55.130:3333"  ## TODO(jrubin) delete
+        znhost: "https://query.zvelo.com:3333"  ## TODO(jrubin) delete
         username: "zvelo.com"
         password: "7j25jx7XVAe"
-        hashMashWorker: "/js/vendor/hashmash/worker.min.js"
+        hashMashWorker: "./js/vendor/hashmash/worker.min.js"
 
       domReady @onDomReady.bind(this)
 
@@ -103,7 +103,7 @@ define [
         header: "Authorizing..."
 
       body = """
-      <img src="/img/spinner-calculating.gif"><br>
+      <img src="./img/spinner-calculating.gif"><br>
       Verifying user credentials...
       """
 
@@ -115,7 +115,7 @@ define [
       return unless @authModal?.isShown
 
       body = """
-      <img src="/img/spinner-sending.gif"><br>
+      <img src="./img/spinner-sending.gif"><br>
       Querying Server...
       """
 

@@ -8,10 +8,10 @@
     Example = (function() {
       function Example() {
         this.zn = new ZveloNET({
-          znhost: "http://10.211.55.130:3333",
+          znhost: "https://query.zvelo.com:3333",
           username: "zvelo.com",
           password: "7j25jx7XVAe",
-          hashMashWorker: "/js/vendor/hashmash/worker.min.js"
+          hashMashWorker: "./js/vendor/hashmash/worker.min.js"
         });
         domReady(this.onDomReady.bind(this));
       }
@@ -118,7 +118,7 @@
             header: "Authorizing..."
           });
         }
-        body = "<img src=\"/img/spinner-calculating.gif\"><br>\nVerifying user credentials...";
+        body = "<img src=\"./img/spinner-calculating.gif\"><br>\nVerifying user credentials...";
         return this.authModal.setBody(body).show();
       };
 
@@ -127,7 +127,7 @@
         if (!((_ref = this.authModal) != null ? _ref.isShown : void 0)) {
           return;
         }
-        body = "<img src=\"/img/spinner-sending.gif\"><br>\nQuerying Server...";
+        body = "<img src=\"./img/spinner-sending.gif\"><br>\nQuerying Server...";
         return this.authModal.setBody(body);
       };
 

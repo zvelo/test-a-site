@@ -99,28 +99,32 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 function program1(depth0,data) {
   
   var buffer = "";
-  buffer += "\n      <li><span class=\"btn btn-large btn-inverse category\" disabled>"
+  buffer += "\n  <span class=\"span4 btn btn-large btn-inverse category\" disabled>"
     + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
-    + "</span></li>\n      ";
+    + "</span>\n  ";
   return buffer;
   }
 
-  buffer += "<div class=\"left\">\n  <p class=\"lead url\">";
+  buffer += "<div class=\"row-fluid\">\n  <div class=\"span10\">\n    <p class=\"lead url\" title=\"";
   if (stack1 = helpers.url) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.url; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</p>\n\n  <div class=\"categories\">\n    <ul class=\"inline\">\n      ";
-  stack1 = helpers.each.call(depth0, depth0.categories, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n    </ul>\n  </div>\n</div>\n\n<div class=\"right reputation ";
+    + "\">";
+  if (stack1 = helpers.url) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.url; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</p>\n  </div>\n\n  <div class=\"span2 reputation ";
   if (stack1 = helpers.reputationId) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputationId; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\">\n  <p>";
+    + "\">\n    <p>";
   if (stack1 = helpers.reputation) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputation; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</p>\n</div>\n\n<div class=\"clearfix\"></div>\n\n<div class=\"controls\">\n  <button class=\"btn btn-primary lookup\">Lookup Another</button>\n  <button class=\"btn btn-warning report\">Report Miscategorization</button>\n</div>\n";
+    + "</p>\n  </div>\n</div>\n\n<div class=\"categories row-fluid\">\n  ";
+  stack1 = helpers.each.call(depth0, depth0.categories, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n</div>\n\n<div class=\"controls row-fluid\">\n  <button class=\"span3 btn btn-large btn-primary lookup\" title=\"Lookup another URL\">Lookup Another</button>\n  <button class=\"span3 btn btn-large btn-warning report\" title=\"Report this URL as miscategorized\">Miscategorized?</button>\n</div>\n";
   return buffer;
   });
 

@@ -122,9 +122,14 @@ define [ "templates" ], (templates) ->
       that = this
 
       removeClass @el, "in"
+
       Modal._transitionEnd @el, ->
         that._remove()
-        if transitionEnd? then that._hideWithTransition(cb) else that._hideModal(cb)
+
+        if transitionEnd?
+          that._hideWithTransition cb
+        else
+          that._hideModal cb
 
       return this
 
