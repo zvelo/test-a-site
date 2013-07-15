@@ -1,0 +1,1 @@
+../../js/example.min.js
