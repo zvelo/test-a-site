@@ -34,9 +34,7 @@ define [ "templates" ], (templates) ->
 
     constructor: (@ctx) ->
       @_configure()
-
       @el = Modal._createEl templates["modal"](@ctx)
-
       addClass @el, "fade"
 
     _configure: ->
@@ -75,8 +73,18 @@ define [ "templates" ], (templates) ->
         removeClass @backdrop, "in"
         Modal._transitionEnd @backdrop, cb
 
+    setHeader: (value) ->
+      @ctx.header = value
+      @el.innerHTML = templates["modal"] @ctx
+      return this
+
+    setBody: (value) ->
+      @ctx.body = value
+      @el.innerHTML = templates["modal"] @ctx
+      return this
+
     show: ->
-      return if @isShown
+      return this if @isShown
       Modal.hide @_show.bind this
       return this
 
@@ -100,17 +108,14 @@ define [ "templates" ], (templates) ->
 
         if that.ctx.btn
           btn = that.el.getElementsByClassName("btn btn-primary")[0]
-          btn.addEventListener "click", that.ctx.onBtn.bind(that), true if that.ctx.onBtn?
+          btn.addEventListener "click", that.hide.bind(that), true
 
         if that.ctx.close
-          closeBtn = that.el.getElementsByClassName("btn btn-close")[0]
-          closeBtn.addEventListener "click", that.hide.bind(that), true
-
           xBtn = that.el.getElementsByClassName("close")[0]
           xBtn.addEventListener "click", that.hide.bind(that), true
 
     hide: (cb) ->
-      return unless @isShown and Modal.shown is this
+      return this unless @isShown and Modal.shown is this
       delete Modal.shown
       @isShown = false
 
@@ -148,7 +153,7 @@ define [ "templates" ], (templates) ->
 
       document.body.removeEventListener "keyup", @onKeyUp, true if @onKeyUp?
       @ctx.onClose this if @ctx.onClose?
-      cb this if cb?
+      cb this if typeof cb is "function"
 
     _remove: ->
       document.body.removeChild @el

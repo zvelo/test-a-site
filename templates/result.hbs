@@ -1,16 +1,20 @@
-<p class="lead url">{{url}}</p>
+<div class="left">
+  <p class="lead url">{{url}}</p>
 
-<div class="reputation {{reputationId}}">
+  <div class="categories">
+    <ul class="inline">
+      {{#each categories}}
+      <li><span class="btn btn-large btn-inverse category" disabled>{{this}}</span></li>
+      {{/each}}
+    </ul>
+  </div>
+</div>
+
+<div class="right reputation {{reputationId}}">
   <p>{{reputation}}</p>
 </div>
 
-<div class="categories">
-  <ul class="inline">
-    {{#each categories}}
-    <li><span class="btn btn-large btn-inverse category" disabled>{{this}}</span></li>
-    {{/each}}
-  </ul>
-</div>
+<div class="clearfix"></div>
 
 <div class="controls">
   <button class="btn btn-primary lookup">Lookup Another</button>

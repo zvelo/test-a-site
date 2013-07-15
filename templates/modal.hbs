@@ -1,4 +1,4 @@
-<div class="modal">
+<div class="modal{{#if class}} {{class}}{{/if}}">
   <div class="modal-header">
     {{#if close}}
     <button type="button" class="close">×</button>
@@ -7,13 +7,9 @@
     <h3>{{header}}</h3>
   </div>
   <div class="modal-body">
-    <p>{{body}}</p>
+    <p>{{{body}}}</p>
   </div>
   <div class="modal-footer">
-    {{#if close}}
-    <button class="btn btn-close">{{close}}</button>
-    {{/if}}
-
     {{#if btn}}
     <button class="btn btn-primary">{{btn}}</button>
     {{/if}}

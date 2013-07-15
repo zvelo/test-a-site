@@ -17,10 +17,10 @@
       }
 
       Example.prototype.onDomReady = function() {
-        var defaultUrl, last, next, _ref, _ref1;
+        var defaultUrl, last, next;
         this.showLoadingModal();
         next = this.zn.ready.then(this.znReady.bind(this)).then(this.show.bind(this, "lookup"));
-        defaultUrl = typeof window !== "undefined" && window !== null ? (_ref = window.location) != null ? (_ref1 = _ref.hash) != null ? _ref1.slice(1) : void 0 : void 0 : void 0;
+        defaultUrl = window.location.hash.slice(1);
         if (defaultUrl) {
           last = next.then(this.doLookup.bind(this, defaultUrl));
         } else {
@@ -50,6 +50,7 @@
         }
         switch (tpl) {
           case "lookup":
+            window.location.hash = "";
             getEl("input").focus();
             return getEl("form").addEventListener("submit", this.submitLookup.bind(this));
           case "result":
@@ -61,6 +62,8 @@
           case "report":
             getEl("form").addEventListener("submit", this.submitReport.bind(this));
             return getEl("select").focus();
+          case "uncategorized":
+            return lookup.focus();
         }
       };
 
@@ -77,7 +80,6 @@
         if (typeof console !== "undefined" && console !== null) {
           console.error(err);
         }
-        console.log("error cb", cb);
         wrappedCb = function() {
           this.hide();
           if (cb != null) {
@@ -88,23 +90,16 @@
           header: "Error!",
           btn: "Dismiss",
           body: err,
-          onBtn: wrappedCb
+          onClose: wrappedCb
         }).show();
       };
 
       Example.prototype.showWarning = function(body, cb) {
-        var wrappedCb;
-        wrappedCb = function() {
-          this.hide();
-          if (cb != null) {
-            return cb();
-          }
-        };
         return new Modal({
           header: "Warning",
           body: body,
           btn: "OK",
-          onBtn: wrappedCb
+          onClose: cb
         }).show();
       };
 
@@ -115,19 +110,33 @@
         }).show();
       };
 
-      Example.prototype.showAuthorizingModal = function() {
-        return new Modal({
-          header: "Authorizing...",
-          body: "Verifying user credentials..."
-        }).show();
+      Example.prototype.onHashMash = function() {
+        var body;
+        if (this.authModal == null) {
+          this.authModal = new Modal({
+            "class": "authorizing",
+            header: "Authorizing..."
+          });
+        }
+        body = "<img src=\"/img/spinner-calculating.gif\"><br>\nVerifying user credentials...";
+        return this.authModal.setBody(body).show();
+      };
+
+      Example.prototype.onAjax = function() {
+        var body, _ref;
+        if (!((_ref = this.authModal) != null ? _ref.isShown : void 0)) {
+          return;
+        }
+        body = "<img src=\"/img/spinner-sending.gif\"><br>\nQuerying Server...";
+        return this.authModal.setBody(body);
       };
 
       Example.prototype.doLookup = function(url) {
         return this.zn.lookup({
           url: url,
           reputation: true,
-          onHashMash: this.showAuthorizingModal.bind(this, "show"),
-          onAjax: console.log.bind(console, "ajax")
+          onHashMash: this.onHashMash.bind(this),
+          onAjax: this.onAjax.bind(this)
         }).then(this.onLookupResponse.bind(this)).otherwise(this.showErrorModal.bind(this, this.show.bind(this, "lookup")));
       };
 
@@ -135,8 +144,8 @@
         return this.zn.report({
           url: url,
           categoryIds: [categoryId],
-          onHashMash: this.showAuthorizingModal.bind(this, "show"),
-          onAjax: console.log.bind(console, "ajax")
+          onHashMash: this.onHashMash.bind(this, "show"),
+          onAjax: this.onAjax.bind(this)
         }).then(this.onReportResponse.bind(this)).otherwise(this.showErrorModal.bind(this));
       };
 
@@ -160,18 +169,27 @@
           return this.showWarning("Please choose a category");
         }
         url = getEl(".url").textContent;
-        console.log("submitReport", ev, url, categoryId);
         return this.doReport(url, categoryId);
       };
 
       Example.prototype.onLookupResponse = function(data) {
+        window.location.hash = "#" + data.url;
         Modal.hide();
-        return this.show("result", data);
+        if (((data != null ? data.categories : void 0) != null) && Object.keys(data.categories).length) {
+          return this.show("result", data);
+        } else {
+          return this.show("uncategorized", data);
+        }
       };
 
       Example.prototype.onReportResponse = function(data) {
-        Modal.hide();
-        return console.log("onReportResponse", data);
+        return new Modal({
+          header: "Thank you",
+          body: "We have received your request.",
+          btn: "Close",
+          close: true,
+          onClose: this.show.bind(this, "lookup")
+        }).show();
       };
 
       return Example;

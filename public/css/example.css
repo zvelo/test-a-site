@@ -1,9 +1,15 @@
 body{padding:2rem;background-color:#f5f5f5}
-#zvelonet{position:relative;border:1px solid #e5e5e5;background-color:#fff;padding:2rem;-webkit-border-radius:5px;border-radius:5px;}
+#zvelonet{border:1px solid #e5e5e5;background-color:#fff;padding:2rem;-webkit-border-radius:5px;border-radius:5px;}
 #zvelonet form{margin:0}
 #zvelonet .url,#zvelonet .categories{margin:0 0 1rem}
+#zvelonet .left{float:left}
+#zvelonet .right{float:right}
 #zvelonet .url{font-size:2rem;line-height:2.2rem}
 #zvelonet input{margin-bottom:1rem;border:0;padding:0;-webkit-box-shadow:none;box-shadow:none;font-size:2rem;line-height:2.2rem;height:auto}
 #zvelonet ul li:first-child{padding-left:0}
-#zvelonet .reputation{position:absolute;padding:2rem;top:0;right:0}
+#zvelonet .clearfix{zoom:1}
+#zvelonet .clearfix:before,#zvelonet .clearfix:after{content:"";display:table}
+#zvelonet .clearfix:after{clear:both}
 #zvelonet select{background:transparent;padding:.5rem;-webkit-appearance:none;-moz-appearance:none;appearance:none;-webkit-border-radius:0;border-radius:0;height:auto;width:auto;font-size:1.2rem}
+.modal.authorizing .modal-body{height:11rem;text-align:center;}
+.modal.authorizing .modal-body img{margin-bottom:1rem}

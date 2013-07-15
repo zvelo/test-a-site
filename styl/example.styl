@@ -5,7 +5,6 @@ body
   background-color #f5f5f5
 
 #zvelonet
-  position relative
   border 1px solid #e5e5e5
   background-color #fff
   padding 2rem
@@ -20,6 +19,12 @@ body
   .url,
   .categories
     margin 0 0 1rem
+
+  .left
+    float left
+
+  .right
+    float right
 
   .url
     font-size $url-font-size
@@ -37,11 +42,8 @@ body
   ul li:first-child
     padding-left 0
 
-  .reputation
-    position absolute
-    padding @padding
-    top 0
-    right 0
+  .clearfix
+    clearfix()
 
   select
     background transparent
@@ -52,3 +54,11 @@ body
     height auto
     width auto
     font-size 1.2rem
+
+.modal.authorizing
+  .modal-body
+    height 11rem
+    text-align center
+
+    img
+      margin-bottom 1rem

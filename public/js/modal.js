@@ -100,9 +100,21 @@
         }
       };
 
+      Modal.prototype.setHeader = function(value) {
+        this.ctx.header = value;
+        this.el.innerHTML = templates["modal"](this.ctx);
+        return this;
+      };
+
+      Modal.prototype.setBody = function(value) {
+        this.ctx.body = value;
+        this.el.innerHTML = templates["modal"](this.ctx);
+        return this;
+      };
+
       Modal.prototype.show = function() {
         if (this.isShown) {
-          return;
+          return this;
         }
         Modal.hide(this._show.bind(this));
         return this;
@@ -126,19 +138,15 @@
         }
         document.body.appendChild(this.el);
         return this._backdrop(function() {
-          var btn, closeBtn, xBtn;
+          var btn, xBtn;
           that.el.style.display = "block";
           that.el.offsetWidth;
           addClass(that.el, "in");
           if (that.ctx.btn) {
             btn = that.el.getElementsByClassName("btn btn-primary")[0];
-            if (that.ctx.onBtn != null) {
-              btn.addEventListener("click", that.ctx.onBtn.bind(that), true);
-            }
+            btn.addEventListener("click", that.hide.bind(that), true);
           }
           if (that.ctx.close) {
-            closeBtn = that.el.getElementsByClassName("btn btn-close")[0];
-            closeBtn.addEventListener("click", that.hide.bind(that), true);
             xBtn = that.el.getElementsByClassName("close")[0];
             return xBtn.addEventListener("click", that.hide.bind(that), true);
           }
@@ -148,7 +156,7 @@
       Modal.prototype.hide = function(cb) {
         var that;
         if (!(this.isShown && Modal.shown === this)) {
-          return;
+          return this;
         }
         delete Modal.shown;
         this.isShown = false;
@@ -199,7 +207,7 @@
         if (this.ctx.onClose != null) {
           this.ctx.onClose(this);
         }
-        if (cb != null) {
+        if (typeof cb === "function") {
           return cb(this);
         }
       };
