@@ -75,21 +75,21 @@ module.exports = (grunt) ->
                 ## multiline comment
                 return /@preserve|@license|@cc_on/i.test text
 
-      "example.min.js":
+      "test-a-site.min.js":
         options:
           include: [
             "poly/function"
             "poly/json"
             "poly/array"
-            "example"
+            "test-a-site"
           ]
           insertRequire: [
             "poly/function"
             "poly/json"
             "poly/array"
-            "example"
+            "test-a-site"
           ]
-          out: "public/js/example.min.js"
+          out: "public/js/test-a-site.min.js"
 
     coffeelint:
       options:
@@ -151,5 +151,9 @@ module.exports = (grunt) ->
 
   grunt.registerMultiTask "build", "Build project files", ->
     grunt.task.run @data.tasks
+
+  grunt.registerTask "server", "Start the test-a-site web server", ->
+    done = @async() ## by never calling done, the server is kept alive
+    require "./server"
 
   grunt.registerTask "default", [ "clean", "coffeelint", "build" ]

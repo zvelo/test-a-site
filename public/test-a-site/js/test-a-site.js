@@ -1,1 +1,1 @@
-../../js/example.min.js
+../../js/test-a-site.min.js
