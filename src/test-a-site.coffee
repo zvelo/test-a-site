@@ -23,6 +23,7 @@ define [
         username: "zvelo.com"
         password: "7j25jx7XVAe"
         hashMashWorker: "./js/vendor/hashmash/worker.min.js"
+        useCache: false
 
       domReady @onDomReady.bind(this)
 
