@@ -68,7 +68,7 @@
       };
 
       Example.prototype.showErrorModal = function() {
-        var arg, cb, err, wrappedCb, _i, _len;
+        var arg, cb, err, _i, _len;
         for (_i = 0, _len = arguments.length; _i < _len; _i++) {
           arg = arguments[_i];
           if (typeof arg === "function") {
@@ -80,17 +80,11 @@
         if (typeof console !== "undefined" && console !== null) {
           console.error(err);
         }
-        wrappedCb = function() {
-          this.hide();
-          if (cb != null) {
-            return cb();
-          }
-        };
         return new Modal({
           header: "Error!",
           btn: "Dismiss",
           body: err,
-          onClose: wrappedCb
+          onClose: cb
         }).show();
       };
 

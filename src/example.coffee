@@ -75,15 +75,11 @@ define [
 
       console?.error err
 
-      wrappedCb = ->
-        @hide()
-        cb() if cb?
-
       new Modal(
         header: "Error!"
         btn: "Dismiss"
         body: err
-        onClose: wrappedCb).show()
+        onClose: cb).show()
 
     showWarning: (body, cb) ->
       new Modal(
