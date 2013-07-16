@@ -1,8 +1,8 @@
 {
-  "name": "zveloNET.js-example",
+  "name": "test-a-site",
   "version": "0.1.0",
-  "description": "zveloNET.js Example Application",
-  "main": "example-server.coffee",
+  "description": "zveloNET.js Test-a-Site Application",
+  "main": "server.coffee",
   "author": "Joshua Rubin <jrubin@zvelo.com> (http://zvelo.com)",
   "license": "BSD",
   "dependencies": {

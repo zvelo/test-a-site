@@ -9,10 +9,17 @@ define [
 ], (domReady, Sizzle, ZveloNET, Modal, templates) ->
   getEl = (selector) -> Sizzle("#zvelonet #{selector or ""}")[0]
 
-  class Example
+  class TestASite
     constructor: ->
       @zn = new ZveloNET
         znhost: "https://query.zvelo.com:3333"  ## TODO(jrubin) delete
+        ###
+        these credentials are ok to be publicly visible
+        they should only be used on zvelo.com though
+        zvelo may revoke them at any time
+        when writing your own code,
+        please request your own credentials from zvelo
+        ###
         username: "zvelo.com"
         password: "7j25jx7XVAe"
         hashMashWorker: "./js/vendor/hashmash/worker.min.js"
@@ -166,4 +173,4 @@ define [
         close: true
         onClose: @show.bind(this, "lookup")).show()
 
-  return new Example
+  return new TestASite

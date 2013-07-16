@@ -1,14 +1,22 @@
 (function() {
   "use strict";
   define(["domReady", "sizzle", "zvelonet", "modal", "templates"], function(domReady, Sizzle, ZveloNET, Modal, templates) {
-    var Example, getEl;
+    var TestASite, getEl;
     getEl = function(selector) {
       return Sizzle("#zvelonet " + (selector || ""))[0];
     };
-    Example = (function() {
-      function Example() {
+    TestASite = (function() {
+      function TestASite() {
         this.zn = new ZveloNET({
           znhost: "https://query.zvelo.com:3333",
+          /*
+          these credentials are ok to be publicly visible
+          they should only be used on zvelo.com though
+          zvelo may revoke them at any time
+          when writing your own code,
+          please request your own credentials from zvelo
+          */
+
           username: "zvelo.com",
           password: "7j25jx7XVAe",
           hashMashWorker: "./js/vendor/hashmash/worker.min.js"
@@ -16,7 +24,7 @@
         domReady(this.onDomReady.bind(this));
       }
 
-      Example.prototype.onDomReady = function() {
+      TestASite.prototype.onDomReady = function() {
         var defaultUrl, last, next;
         this.showLoadingModal();
         next = this.zn.ready.then(this.znReady.bind(this)).then(this.show.bind(this, "lookup"));
@@ -29,7 +37,7 @@
         return last.otherwise(this.showErrorModal.bind(this));
       };
 
-      Example.prototype.znReady = function() {
+      TestASite.prototype.znReady = function() {
         var categories;
         categories = ZveloNET.categorySort(this.zn["categories.txt"]);
         return this.categories = categories.filter(function(value) {
@@ -40,7 +48,7 @@
         });
       };
 
-      Example.prototype.show = function(tpl, ctx) {
+      TestASite.prototype.show = function(tpl, ctx) {
         var lookup;
         this.ctx = ctx || {};
         getEl().innerHTML = templates[tpl](this.ctx);
@@ -67,7 +75,7 @@
         }
       };
 
-      Example.prototype.showErrorModal = function() {
+      TestASite.prototype.showErrorModal = function() {
         var arg, cb, err, _i, _len;
         for (_i = 0, _len = arguments.length; _i < _len; _i++) {
           arg = arguments[_i];
@@ -88,7 +96,7 @@
         }).show();
       };
 
-      Example.prototype.showWarning = function(body, cb) {
+      TestASite.prototype.showWarning = function(body, cb) {
         return new Modal({
           header: "Warning",
           body: body,
@@ -97,14 +105,14 @@
         }).show();
       };
 
-      Example.prototype.showLoadingModal = function() {
+      TestASite.prototype.showLoadingModal = function() {
         return new Modal({
           header: "Loading...",
           body: "Initializing zveloNET..."
         }).show();
       };
 
-      Example.prototype.onHashMash = function() {
+      TestASite.prototype.onHashMash = function() {
         var body;
         if (this.authModal == null) {
           this.authModal = new Modal({
@@ -116,7 +124,7 @@
         return this.authModal.setBody(body).show();
       };
 
-      Example.prototype.onAjax = function() {
+      TestASite.prototype.onAjax = function() {
         var body, _ref;
         if (!((_ref = this.authModal) != null ? _ref.isShown : void 0)) {
           return;
@@ -125,7 +133,7 @@
         return this.authModal.setBody(body);
       };
 
-      Example.prototype.doLookup = function(url) {
+      TestASite.prototype.doLookup = function(url) {
         return this.zn.lookup({
           url: url,
           reputation: true,
@@ -134,7 +142,7 @@
         }).then(this.onLookupResponse.bind(this)).otherwise(this.showErrorModal.bind(this, this.show.bind(this, "lookup")));
       };
 
-      Example.prototype.doReport = function(url, categoryId) {
+      TestASite.prototype.doReport = function(url, categoryId) {
         return this.zn.report({
           url: url,
           categoryIds: [categoryId],
@@ -143,7 +151,7 @@
         }).then(this.onReportResponse.bind(this)).otherwise(this.showErrorModal.bind(this));
       };
 
-      Example.prototype.submitLookup = function(ev) {
+      TestASite.prototype.submitLookup = function(ev) {
         var url;
         ev.preventDefault();
         document.activeElement.blur();
@@ -154,7 +162,7 @@
         return this.doLookup(url);
       };
 
-      Example.prototype.submitReport = function(ev) {
+      TestASite.prototype.submitReport = function(ev) {
         var categoryId, url, _ref;
         ev.preventDefault();
         document.activeElement.blur();
@@ -166,7 +174,7 @@
         return this.doReport(url, categoryId);
       };
 
-      Example.prototype.onLookupResponse = function(data) {
+      TestASite.prototype.onLookupResponse = function(data) {
         window.location.hash = "#" + data.url;
         Modal.hide();
         if (((data != null ? data.categories : void 0) != null) && Object.keys(data.categories).length) {
@@ -176,7 +184,7 @@
         }
       };
 
-      Example.prototype.onReportResponse = function(data) {
+      TestASite.prototype.onReportResponse = function(data) {
         return new Modal({
           header: "Thank you",
           body: "We have received your request.",
@@ -186,14 +194,14 @@
         }).show();
       };
 
-      return Example;
+      return TestASite;
 
     })();
-    return new Example;
+    return new TestASite;
   });
 
 }).call(this);
 
 /*
-//@ sourceMappingURL=example.js.map
+//@ sourceMappingURL=test-a-site.js.map
 */
