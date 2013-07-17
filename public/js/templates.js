@@ -43,7 +43,7 @@ function program5(depth0,data) {
   return buffer;
   }
 
-  buffer += "<div class=\"modal";
+  buffer += "<div class=\"modal hide fade";
   stack1 = helpers['if'].call(depth0, depth0['class'], {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\">\n  <div class=\"modal-header\">\n    ";

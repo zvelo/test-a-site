@@ -3,13 +3,6 @@
 hasClass = (el, className) ->
   return (' ' + el.className + ' ').indexOf(' ' + className + ' ') > -1
 
-addClass = (el, className) ->
-  el.className += " #{className}"
-
-removeClass = (el, className) ->
-  re = new RegExp "(?:^|\\s)#{className}(?!\\S)", 'g'
-  el.className = el.className.replace re , ""
-
 transitionEnd = ( ->
   el = document.createElement "zveloFakeElement"
   transEndEventNames =
@@ -22,76 +15,118 @@ transitionEnd = ( ->
     return transEndEventNames[name] if el.style[name]?
 )()
 
-define [ "templates" ], (templates) ->
-  class Modal
-    @hide = (cb) ->
-      unless Modal.shown?
+onTransitionEnd = (el, cb) ->
+  unless transitionEnd?
+    cb() if cb?
+    return
+
+  transitionEndFn = (ev) ->
+    el.removeEventListener transitionEnd, transitionEndFn, true
+    cb() if cb?
+
+  el.addEventListener transitionEnd, transitionEndFn, true
+
+addClass = (el, className, cb) ->
+  unless hasClass el, className
+    el.className += " #{className}"
+    onTransitionEnd el, cb if cb?
+  else cb() if cb?
+
+removeClass = (el, className, cb) ->
+  if hasClass el, className
+    re = new RegExp "(?:^|\\s)#{className}(?!\\S)", 'g'
+    el.className = el.className.replace re , ""
+    onTransitionEnd el, cb if cb?
+  else
+    cb() if cb?
+
+createEl = (html) ->
+  container = document.createElement "div"
+  container.innerHTML = html
+  return container.firstChild
+
+define [ "event", "templates" ], (Event, templates) ->
+  class Modal extends Event
+    @hideCurrent: (cb) ->
+      unless Modal.current? or Modal.status is "hidden"
         cb() if cb?
         return false
 
-      Modal.shown.hide cb
+      Modal.current.on "hidden", cb, Event.ONCE if cb?
+      Modal.current.hide()
+
       return true
 
     constructor: (@ctx) ->
       @_configure()
-      @el = Modal._createEl templates["modal"](@ctx)
-      addClass @el, "fade"
+      @el = createEl templates["modal"](@ctx)
+      @animate = hasClass @el, "fade"
+
+      @on "backdrop shown",  @_onBackdropShown.bind(this)
+      @on "modal shown",     @_onModalShown.bind(this)
+      @on "modal hidden",    @_onModalHidden.bind(this)
+      @on "backdrop hidden", @_onBackdropHidden.bind(this)
 
     _configure: ->
       @ctx ?= {}
       ## TODO(jrubin)
 
-    @_createEl = (html) ->
-      container = document.createElement "div"
-      container.innerHTML = html
-      return container.firstChild
-
-    @_transitionEnd = (el, cb) ->
-      unless transitionEnd?
+    _addClass: (el, className, cb) ->
+      unless @animate
+        addClass el, className
         cb() if cb?
         return
 
-      transitionEndFn = ->
-        el.removeEventListener transitionEnd, transitionEndFn, true
-        cb()
+      addClass el, className, cb
 
-      el.addEventListener transitionEnd, transitionEndFn, true
+    _removeClass: (el, className, cb) ->
+      unless @animate
+        removeClass el, className
+        cb() if cb?
+        return
 
-    _backdrop: (cb) ->
-      that = this
+      removeClass el, className, cb
 
-      if @isShown
-        @backdrop = Modal._createEl "<div class=\"modal-backdrop\"/>"
-        addClass @backdrop, "fade"
-        document.body.appendChild @backdrop
-        @backdrop.addEventListener "click", -> that.hide() if that.ctx.close
-        @backdrop.offsetWidth  ## force reflow
-        addClass @backdrop, "in"
+    _showBackdrop: ->
+      return unless @status is "showing"
 
-        Modal._transitionEnd @backdrop, cb
-      else if not @isShown and @backdrop?
-        removeClass @backdrop, "in"
-        Modal._transitionEnd @backdrop, cb
+      @backdrop = createEl "<div class=\"modal-backdrop" +
+                           (if @animate then " fade" else "") +
+                           "\"></div>"
+      document.body.appendChild @backdrop
+
+      @backdrop.addEventListener "click", @hide.bind(this) if @ctx.close
+
+      @backdrop.offsetWidth  ## force reflow
+      @_addClass @backdrop, "in", @trigger.bind(this, "backdrop shown")
+
+    _hideBackdrop: ->
+      return unless @status is "hiding" and @backdrop?
+      @_removeClass @backdrop, "in", @trigger.bind(this, "backdrop hidden")
+
+    _setStatus: (value) ->
+      return false if @status is "hiding" and value in [ "showing", "shown" ]
+      @status = value
+      @trigger value
+      return true
 
     setHeader: (value) ->
-      @ctx.header = value
-      @el.innerHTML = templates["modal"] @ctx
+      @el.getElementsByTagName('h3')[0].innerHTML = value
       return this
 
     setBody: (value) ->
-      @ctx.body = value
-      @el.innerHTML = templates["modal"] @ctx
+      @el.getElementsByTagName('p')[0].innerHTML = value
       return this
 
     show: ->
-      return this if @isShown
-      Modal.hide @_show.bind this
+      return this if @status in [ "shown", "showing" ]
+      return this unless @_setStatus "showing"
+      Modal.hideCurrent @_show.bind this
       return this
 
     _show: ->
-      return if @isShown or Modal.shown?
-      Modal.shown = this
-      @isShown = true
+      return if Modal.current?
+      Modal.current = this
 
       that = this
 
@@ -101,69 +136,58 @@ define [ "templates" ], (templates) ->
 
       document.body.appendChild @el
 
-      @_backdrop ->
-        that.el.style.display = "block"
-        that.el.offsetWidth  ## force reflow
-        addClass that.el, "in"
+      @_showBackdrop()
 
-        if that.ctx.btn
-          btn = that.el.getElementsByClassName("btn btn-primary")[0]
-          btn.addEventListener "click", that.hide.bind(that), true
+    _onBackdropShown: ->
+      return unless @status is "showing"
 
-        if that.ctx.close
-          xBtn = that.el.getElementsByClassName("close")[0]
-          xBtn.addEventListener "click", that.hide.bind(that), true
+      @el.style.display = "block"
+      @el.offsetWidth  ## force reflow
 
-    hide: (cb) ->
-      return this unless @isShown and Modal.shown is this
-      delete Modal.shown
-      @isShown = false
+      if @ctx.btn
+        btn = @el.getElementsByClassName("btn btn-primary")[0]
+        btn.addEventListener "click", @hide.bind(this), true
 
-      that = this
+      if @ctx.close
+        xBtn = @el.getElementsByClassName("close")[0]
+        xBtn.addEventListener "click", @hide.bind(this), true
 
-      removeClass @el, "in"
+      @_addClass @el, "in", @trigger.bind(this, "modal shown")
 
-      Modal._transitionEnd @el, ->
-        that._remove()
+    _onModalShown: ->
+      ## this ensures all transitions complete before shown is set
+      setTimeout @_setStatus.bind(this, "shown"), 1
 
-        if transitionEnd?
-          that._hideWithTransition cb
-        else
-          that._hideModal cb
+    _onBackdropHidden: ->
+      @_removeBackdrop()
+      setTimeout @_setStatus.bind(this, "hidden"), 1
 
-      return this
-
-    _hideWithTransition: (cb) ->
-      that = this
-
-      timeout = setTimeout(->
-        that._hideModal cb
-      , 500)
-
-      Modal._transitionEnd @el, ->
-        clearTimeout timeout
-        that._hideModal cb
-
-      return this
-
-    _hideModal: (cb) ->
+    _onModalHidden: ->
+      document.body.removeChild @el
       @el.style.display = "none"
+      @_hideBackdrop()
+
+    hide: ->
+      if @status is "showing"
+        return @on "shown", @hide.bind(this), Event.ONCE
+
+      return unless @status is "shown"
+
+      @_setStatus "hiding"
+
       that = this
-      @_backdrop -> that._removeBackdrop cb
+      @_removeClass @el, "in", @trigger.bind(this, "modal hidden")
+
       return this
 
-    _removeBackdrop: (cb) ->
+    _removeBackdrop: ->
+      document.body.removeEventListener "keyup", @onKeyUp, true if @onKeyUp?
       document.body.removeChild @backdrop if @backdrop?
+      delete Modal.current if Modal.current is this
       delete @backdrop
 
-      document.body.removeEventListener "keyup", @onKeyUp, true if @onKeyUp?
       @ctx.onClose this if @ctx.onClose?
-      cb this if typeof cb is "function"
 
-    _remove: ->
-      document.body.removeChild @el
-      removeClass @el, "in"
-
-    toggle: -> if @isShown then @hide() else @show()
+    toggle: -> if @status in [ "shown", "showing" ] then @hide() else @show()
 
   return Modal

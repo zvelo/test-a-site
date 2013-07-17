@@ -1,2 +1,3 @@
 *.map
+*.swo
 /node_modules

@@ -1,19 +1,11 @@
 (function() {
   "use strict";
-  var addClass, hasClass, removeClass, transitionEnd;
+  var addClass, createEl, hasClass, onTransitionEnd, removeClass, transitionEnd,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   hasClass = function(el, className) {
     return (' ' + el.className + ' ').indexOf(' ' + className + ' ') > -1;
-  };
-
-  addClass = function(el, className) {
-    return el.className += " " + className;
-  };
-
-  removeClass = function(el, className) {
-    var re;
-    re = new RegExp("(?:^|\\s)" + className + "(?!\\S)", 'g');
-    return el.className = el.className.replace(re, "");
   };
 
   transitionEnd = (function() {
@@ -32,101 +24,171 @@
     }
   })();
 
-  define(["templates"], function(templates) {
+  onTransitionEnd = function(el, cb) {
+    var transitionEndFn;
+    if (transitionEnd == null) {
+      if (cb != null) {
+        cb();
+      }
+      return;
+    }
+    transitionEndFn = function(ev) {
+      el.removeEventListener(transitionEnd, transitionEndFn, true);
+      if (cb != null) {
+        return cb();
+      }
+    };
+    return el.addEventListener(transitionEnd, transitionEndFn, true);
+  };
+
+  addClass = function(el, className, cb) {
+    if (!hasClass(el, className)) {
+      el.className += " " + className;
+      if (cb != null) {
+        return onTransitionEnd(el, cb);
+      }
+    } else {
+      if (cb != null) {
+        return cb();
+      }
+    }
+  };
+
+  removeClass = function(el, className, cb) {
+    var re;
+    if (hasClass(el, className)) {
+      re = new RegExp("(?:^|\\s)" + className + "(?!\\S)", 'g');
+      el.className = el.className.replace(re, "");
+      if (cb != null) {
+        return onTransitionEnd(el, cb);
+      }
+    } else {
+      if (cb != null) {
+        return cb();
+      }
+    }
+  };
+
+  createEl = function(html) {
+    var container;
+    container = document.createElement("div");
+    container.innerHTML = html;
+    return container.firstChild;
+  };
+
+  define(["event", "templates"], function(Event, templates) {
     var Modal;
-    Modal = (function() {
-      Modal.hide = function(cb) {
-        if (Modal.shown == null) {
+    Modal = (function(_super) {
+      __extends(Modal, _super);
+
+      Modal.hideCurrent = function(cb) {
+        if (!((Modal.current != null) || Modal.status === "hidden")) {
           if (cb != null) {
             cb();
           }
           return false;
         }
-        Modal.shown.hide(cb);
+        if (cb != null) {
+          Modal.current.on("hidden", cb, Event.ONCE);
+        }
+        Modal.current.hide();
         return true;
       };
 
       function Modal(ctx) {
         this.ctx = ctx;
         this._configure();
-        this.el = Modal._createEl(templates["modal"](this.ctx));
-        addClass(this.el, "fade");
+        this.el = createEl(templates["modal"](this.ctx));
+        this.animate = hasClass(this.el, "fade");
+        this.on("backdrop shown", this._onBackdropShown.bind(this));
+        this.on("modal shown", this._onModalShown.bind(this));
+        this.on("modal hidden", this._onModalHidden.bind(this));
+        this.on("backdrop hidden", this._onBackdropHidden.bind(this));
       }
 
       Modal.prototype._configure = function() {
         return this.ctx != null ? this.ctx : this.ctx = {};
       };
 
-      Modal._createEl = function(html) {
-        var container;
-        container = document.createElement("div");
-        container.innerHTML = html;
-        return container.firstChild;
-      };
-
-      Modal._transitionEnd = function(el, cb) {
-        var transitionEndFn;
-        if (transitionEnd == null) {
+      Modal.prototype._addClass = function(el, className, cb) {
+        if (!this.animate) {
+          addClass(el, className);
           if (cb != null) {
             cb();
           }
           return;
         }
-        transitionEndFn = function() {
-          el.removeEventListener(transitionEnd, transitionEndFn, true);
-          return cb();
-        };
-        return el.addEventListener(transitionEnd, transitionEndFn, true);
+        return addClass(el, className, cb);
       };
 
-      Modal.prototype._backdrop = function(cb) {
-        var that;
-        that = this;
-        if (this.isShown) {
-          this.backdrop = Modal._createEl("<div class=\"modal-backdrop\"/>");
-          addClass(this.backdrop, "fade");
-          document.body.appendChild(this.backdrop);
-          this.backdrop.addEventListener("click", function() {
-            if (that.ctx.close) {
-              return that.hide();
-            }
-          });
-          this.backdrop.offsetWidth;
-          addClass(this.backdrop, "in");
-          return Modal._transitionEnd(this.backdrop, cb);
-        } else if (!this.isShown && (this.backdrop != null)) {
-          removeClass(this.backdrop, "in");
-          return Modal._transitionEnd(this.backdrop, cb);
+      Modal.prototype._removeClass = function(el, className, cb) {
+        if (!this.animate) {
+          removeClass(el, className);
+          if (cb != null) {
+            cb();
+          }
+          return;
         }
+        return removeClass(el, className, cb);
+      };
+
+      Modal.prototype._showBackdrop = function() {
+        if (this.status !== "showing") {
+          return;
+        }
+        this.backdrop = createEl("<div class=\"modal-backdrop" + (this.animate ? " fade" : "") + "\"></div>");
+        document.body.appendChild(this.backdrop);
+        if (this.ctx.close) {
+          this.backdrop.addEventListener("click", this.hide.bind(this));
+        }
+        this.backdrop.offsetWidth;
+        return this._addClass(this.backdrop, "in", this.trigger.bind(this, "backdrop shown"));
+      };
+
+      Modal.prototype._hideBackdrop = function() {
+        if (!(this.status === "hiding" && (this.backdrop != null))) {
+          return;
+        }
+        return this._removeClass(this.backdrop, "in", this.trigger.bind(this, "backdrop hidden"));
+      };
+
+      Modal.prototype._setStatus = function(value) {
+        if (this.status === "hiding" && (value === "showing" || value === "shown")) {
+          return false;
+        }
+        this.status = value;
+        this.trigger(value);
+        return true;
       };
 
       Modal.prototype.setHeader = function(value) {
-        this.ctx.header = value;
-        this.el.innerHTML = templates["modal"](this.ctx);
+        this.el.getElementsByTagName('h3')[0].innerHTML = value;
         return this;
       };
 
       Modal.prototype.setBody = function(value) {
-        this.ctx.body = value;
-        this.el.innerHTML = templates["modal"](this.ctx);
+        this.el.getElementsByTagName('p')[0].innerHTML = value;
         return this;
       };
 
       Modal.prototype.show = function() {
-        if (this.isShown) {
+        var _ref;
+        if ((_ref = this.status) === "shown" || _ref === "showing") {
           return this;
         }
-        Modal.hide(this._show.bind(this));
+        if (!this._setStatus("showing")) {
+          return this;
+        }
+        Modal.hideCurrent(this._show.bind(this));
         return this;
       };
 
       Modal.prototype._show = function() {
         var that;
-        if (this.isShown || (Modal.shown != null)) {
+        if (Modal.current != null) {
           return;
         }
-        Modal.shown = this;
-        this.isShown = true;
+        Modal.current = this;
         that = this;
         if (this.ctx.close) {
           this.onKeyUp = function(ev) {
@@ -137,88 +199,75 @@
           document.body.addEventListener("keyup", this.onKeyUp, true);
         }
         document.body.appendChild(this.el);
-        return this._backdrop(function() {
-          var btn, xBtn;
-          that.el.style.display = "block";
-          that.el.offsetWidth;
-          addClass(that.el, "in");
-          if (that.ctx.btn) {
-            btn = that.el.getElementsByClassName("btn btn-primary")[0];
-            btn.addEventListener("click", that.hide.bind(that), true);
-          }
-          if (that.ctx.close) {
-            xBtn = that.el.getElementsByClassName("close")[0];
-            return xBtn.addEventListener("click", that.hide.bind(that), true);
-          }
-        });
+        return this._showBackdrop();
       };
 
-      Modal.prototype.hide = function(cb) {
-        var that;
-        if (!(this.isShown && Modal.shown === this)) {
-          return this;
+      Modal.prototype._onBackdropShown = function() {
+        var btn, xBtn;
+        if (this.status !== "showing") {
+          return;
         }
-        delete Modal.shown;
-        this.isShown = false;
-        that = this;
-        removeClass(this.el, "in");
-        Modal._transitionEnd(this.el, function() {
-          that._remove();
-          if (transitionEnd != null) {
-            return that._hideWithTransition(cb);
-          } else {
-            return that._hideModal(cb);
-          }
-        });
-        return this;
+        this.el.style.display = "block";
+        this.el.offsetWidth;
+        if (this.ctx.btn) {
+          btn = this.el.getElementsByClassName("btn btn-primary")[0];
+          btn.addEventListener("click", this.hide.bind(this), true);
+        }
+        if (this.ctx.close) {
+          xBtn = this.el.getElementsByClassName("close")[0];
+          xBtn.addEventListener("click", this.hide.bind(this), true);
+        }
+        return this._addClass(this.el, "in", this.trigger.bind(this, "modal shown"));
       };
 
-      Modal.prototype._hideWithTransition = function(cb) {
-        var that, timeout;
-        that = this;
-        timeout = setTimeout(function() {
-          return that._hideModal(cb);
-        }, 500);
-        Modal._transitionEnd(this.el, function() {
-          clearTimeout(timeout);
-          return that._hideModal(cb);
-        });
-        return this;
+      Modal.prototype._onModalShown = function() {
+        return setTimeout(this._setStatus.bind(this, "shown"), 1);
       };
 
-      Modal.prototype._hideModal = function(cb) {
-        var that;
+      Modal.prototype._onBackdropHidden = function() {
+        this._removeBackdrop();
+        return setTimeout(this._setStatus.bind(this, "hidden"), 1);
+      };
+
+      Modal.prototype._onModalHidden = function() {
+        document.body.removeChild(this.el);
         this.el.style.display = "none";
+        return this._hideBackdrop();
+      };
+
+      Modal.prototype.hide = function() {
+        var that;
+        if (this.status === "showing") {
+          return this.on("shown", this.hide.bind(this), Event.ONCE);
+        }
+        if (this.status !== "shown") {
+          return;
+        }
+        this._setStatus("hiding");
         that = this;
-        this._backdrop(function() {
-          return that._removeBackdrop(cb);
-        });
+        this._removeClass(this.el, "in", this.trigger.bind(this, "modal hidden"));
         return this;
       };
 
-      Modal.prototype._removeBackdrop = function(cb) {
-        if (this.backdrop != null) {
-          document.body.removeChild(this.backdrop);
-        }
-        delete this.backdrop;
+      Modal.prototype._removeBackdrop = function() {
         if (this.onKeyUp != null) {
           document.body.removeEventListener("keyup", this.onKeyUp, true);
         }
+        if (this.backdrop != null) {
+          document.body.removeChild(this.backdrop);
+        }
+        if (Modal.current === this) {
+          delete Modal.current;
+        }
+        delete this.backdrop;
         if (this.ctx.onClose != null) {
-          this.ctx.onClose(this);
+          return this.ctx.onClose(this);
         }
-        if (typeof cb === "function") {
-          return cb(this);
-        }
-      };
-
-      Modal.prototype._remove = function() {
-        document.body.removeChild(this.el);
-        return removeClass(this.el, "in");
       };
 
       Modal.prototype.toggle = function() {
-        if (this.isShown) {
+        var _ref;
+        if ((_ref = this.status) === "shown" || _ref === "showing") {
           return this.hide();
         } else {
           return this.show();
@@ -227,7 +276,7 @@
 
       return Modal;
 
-    })();
+    })(Event);
     return Modal;
   });
 

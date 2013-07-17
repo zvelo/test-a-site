@@ -38,12 +38,19 @@ define [
 
       defaultUrl = window.location.hash[1..]
 
-      if defaultUrl then last = next.then @doLookup.bind this, defaultUrl
-      else               last = next.then Modal.hide
+      if defaultUrl
+        last = next.then @doLookup.bind this, defaultUrl
+      else
+        that = this
+        last = next.then ->
+          that.loadingModal.hide()
+          delete that.loadingModal
 
       last.otherwise @showErrorModal.bind(this)
 
     onKeyDown: (ev) ->
+      return if Modal.current?
+
       input     = getEl("input")
       lookupBtn = getEl("button")
 
@@ -100,7 +107,7 @@ define [
         if typeof arg is "function" then cb = arg
         else err = arg
 
-      console?.error err
+      console?.error err, err?.stack
 
       new Modal(
         header: "Error!"
@@ -117,7 +124,7 @@ define [
         onClose: cb).show()
 
     showLoadingModal: ->
-      new Modal(
+      @loadingModal = new Modal(
         header: "Loading..."
         body: "Initializing zveloNET...").show()
 
@@ -136,7 +143,7 @@ define [
         .show()
 
     onAjax: ->
-      return unless @authModal?.isShown
+      return unless @authModal?.status is "shown"
 
       body = """
       <img src="./img/spinner-sending.gif"><br>
@@ -146,6 +153,19 @@ define [
       @authModal.setBody body
 
     doLookup: (url) ->
+      input = getEl("input")
+      return unless input?
+      input.value = url unless input.value.length
+      @submitLookup()
+
+    submitLookup: (ev) ->
+      ev?.preventDefault()
+      url = getEl("input").value
+
+      return unless url?.length
+
+      document.activeElement.blur()
+
       @zn.lookup(
         url: url
         reputation: true
@@ -154,33 +174,27 @@ define [
       .then(@onLookupResponse.bind this)
       .otherwise(@showErrorModal.bind this, @show.bind(this, "lookup"))
 
-    doReport: (url, categoryId) ->
+    submitReport: (ev) ->
+      ev?.preventDefault()
+      categoryId = parseInt getEl("select :selected")?.value, 10
+
+      return @showWarning "Please choose a category" if isNaN categoryId
+
+      url = getEl(".url").textContent
+
+      document.activeElement.blur()
+
       @zn.report(
         url: url
         categoryIds: [ categoryId ]
-        onHashMash: @onHashMash.bind(this, "show")
+        onHashMash: @onHashMash.bind(this)
         onAjax: @onAjax.bind(this))
       .then(@onReportResponse.bind this)
       .otherwise(@showErrorModal.bind this)
 
-    submitLookup: (ev) ->
-      ev.preventDefault()
-      document.activeElement.blur()
-      url = getEl("input").value
-      return unless url?.length
-      @doLookup url
-
-    submitReport: (ev) ->
-      ev.preventDefault()
-      document.activeElement.blur()
-      categoryId = parseInt getEl("select :selected")?.value, 10
-      return @showWarning "Please choose a category" if isNaN categoryId
-      url = getEl(".url").textContent
-      @doReport url, categoryId
-
     onLookupResponse: (data) ->
       window.location.hash = "##{data.url}"
-      Modal.hide()
+      @authModal.hide()
       if data?.categories? and Object.keys(data.categories).length
         @show "result", data
       else
