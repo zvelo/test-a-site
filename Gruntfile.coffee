@@ -127,7 +127,7 @@ module.exports = (grunt) ->
         tasks: "stylus:main"
       handlebars:
         files: "templates/**/*.hbs"
-        tasks: "handlebars:main"
+        tasks: [ "handlebars:main", "requirejs" ]
       root:
         files: "*.coffee"
         tasks: "coffeelint:root"
