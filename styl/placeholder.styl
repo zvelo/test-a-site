@@ -1,0 +1,10 @@
+placeholder()
+  for v in ':-webkit-input' '-moz' ':-moz' '-ms-input'
+    &:{v}-placeholder
+      for pair in arguments
+        if typeof(pair) == 'function'
+          pair()
+        else if pair is not null && pair[0] is not null
+          {pair[0]}: type(pair[1]) == 'string' ? s(pair[1]) : pair[1]
+
+input-placeholder = placeholder

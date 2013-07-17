@@ -31,11 +31,9 @@ module.exports = (grunt) ->
       options:
         "include css": true
       main:
-        expand: true
-        cwd: "styl"
-        src: "**/*.styl"
-        dest: "public/css"
-        ext: ".css"
+        files:
+          "public/css/test-a-site.css": "styl/test-a-site.styl"
+          "public/css/demo.css":        "styl/demo.styl"
 
     requirejs:
       options:

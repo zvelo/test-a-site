@@ -19,8 +19,7 @@
 
           username: "zvelo.com",
           password: "7j25jx7XVAe",
-          hashMashWorker: "./js/vendor/hashmash/worker.min.js",
-          useCache: false
+          hashMashWorker: "./js/vendor/hashmash/worker.min.js"
         });
         domReady(this.onDomReady.bind(this));
       }

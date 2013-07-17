@@ -1,15 +1,18 @@
 <form>
-  <div class="lookup-row">
-    <label class="" for="zvelo-url-input">http://</label>
+  <div class="lookup inner-container">
+    <span>
+      <label for="zvelo-url-input">http://</label>
+    </span>
     <span>
       <input type="text"
              id="zvelo-url-input"
-             class=""
-             {{! lighten up placeholder text }}
+             title="Enter a URL to lookup its categorization"
              placeholder="zvelo.com (just start typing&hellip;)"
              autocomplete="off"
              spellcheck="false">
-    <span>
+    </span>
   </div>
-  <button type="submit" class="btn btn-large btn-primary">Lookup</button>
+  <div class="controls">
+    <button type="submit" class="btn btn-large btn-primary">Lookup</button>
+  </div>
 </form>

@@ -5,12 +5,10 @@ this["JST"] = this["JST"] || {};
 this["JST"]["lookup"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "";
+  
 
 
-  buffer += "<form>\n  <div class=\"lookup-row\">\n    <label class=\"\" for=\"zvelo-url-input\">http://</label>\n    <span>\n      <input type=\"text\"\n             id=\"zvelo-url-input\"\n             class=\"\"\n             "
-    + "\n             placeholder=\"zvelo.com (just start typing&hellip;)\"\n             autocomplete=\"off\"\n             spellcheck=\"false\">\n    <span>\n  </div>\n  <button type=\"submit\" class=\"btn btn-large btn-primary\">Lookup</button>\n</form>\n";
-  return buffer;
+  return "<form>\n  <div class=\"lookup inner-container\">\n    <span>\n      <label for=\"zvelo-url-input\">http://</label>\n    </span>\n    <span>\n      <input type=\"text\"\n             id=\"zvelo-url-input\"\n             title=\"Enter a URL to lookup its categorization\"\n             placeholder=\"zvelo.com (just start typing&hellip;)\"\n             autocomplete=\"off\"\n             spellcheck=\"false\">\n    </span>\n  </div>\n  <div class=\"controls\">\n    <button type=\"submit\" class=\"btn btn-large btn-primary\">Lookup</button>\n  </div>\n</form>\n";
   });
 
 this["JST"]["modal"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -74,22 +72,22 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 function program1(depth0,data) {
   
   var buffer = "", stack1;
-  buffer += "\n      <option value=\""
+  buffer += "\n        <option value=\""
     + escapeExpression(((stack1 = depth0.id),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
     + "\">"
     + escapeExpression(((stack1 = depth0.name),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + "</option>\n      ";
+    + "</option>\n        ";
   return buffer;
   }
 
-  buffer += "<form>\n  <p class=\"lead url\">";
+  buffer += "<form>\n  <div class=\"inner-container\">\n    <p class=\"lead url\">";
   if (stack1 = helpers.url) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.url; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</p>\n\n  <div class=\"categories\">\n    <select>\n      <option value=\"\">-- Suggest a Category --</option>\n      ";
+    + "</p>\n\n    <div class=\"categories\">\n      <select>\n        <option value=\"\">-- Suggest a Category --</option>\n        ";
   stack1 = helpers.each.call(depth0, depth0.categories, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n    </select>\n  </div>\n\n  <div class=\"controls\">\n    <button type=\"submit\" class=\"btn btn-large btn-danger report\">Report Miscategorization</button>\n    <button type=\"button\" class=\"btn btn-large btn-primary lookup\">Return to Lookup</button>\n  </div>\n</form>\n";
+  buffer += "\n      </select>\n    </div>\n  </div>\n\n  <div class=\"controls\">\n    <button type=\"submit\" class=\"btn btn-large btn-danger report\">Report Miscategorization</button>\n    <button type=\"button\" class=\"btn btn-large btn-primary lookup\">Return to Lookup</button>\n  </div>\n</form>\n";
   return buffer;
   });
 
@@ -107,7 +105,7 @@ function program1(depth0,data) {
   return buffer;
   }
 
-  buffer += "<div class=\"row-fluid\">\n  <div class=\"span10\">"
+  buffer += "<div class=\"inner-container row-fluid\">\n  <div class=\"span10\">"
     + "\n    <div class=\"row-fluid\">"
     + "\n      <p class=\"span12 lead url\" title=\"";
   if (stack1 = helpers.url) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
@@ -127,8 +125,7 @@ function program1(depth0,data) {
   if (stack1 = helpers.reputationId) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputationId; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\">\n      "
-    + "\n    </div>\n    <p>";
+    + "\"></div>\n    <p>";
   if (stack1 = helpers.reputation) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputation; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)

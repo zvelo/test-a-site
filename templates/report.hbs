@@ -1,13 +1,15 @@
 <form>
-  <p class="lead url">{{url}}</p>
+  <div class="inner-container">
+    <p class="lead url">{{url}}</p>
 
-  <div class="categories">
-    <select>
-      <option value="">-- Suggest a Category --</option>
-      {{#each categories}}
-      <option value="{{this.id}}">{{this.name}}</option>
-      {{/each}}
-    </select>
+    <div class="categories">
+      <select>
+        <option value="">-- Suggest a Category --</option>
+        {{#each categories}}
+        <option value="{{this.id}}">{{this.name}}</option>
+        {{/each}}
+      </select>
+    </div>
   </div>
 
   <div class="controls">
