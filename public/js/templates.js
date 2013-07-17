@@ -5,10 +5,12 @@ this["JST"] = this["JST"] || {};
 this["JST"]["lookup"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  
+  var buffer = "";
 
 
-  return "<form>\n  <input type=\"text\"\n         class=\"input-block-level\"\n         placeholder=\"http://zvelo.com\"\n         autocomplete=\"off\"\n         spellcheck=\"false\">\n  <button type=\"submit\" class=\"btn btn-large btn-primary\">Lookup</button>\n</form>\n";
+  buffer += "<form>\n  <div class=\"lookup-row\">\n    <label class=\"\" for=\"zvelo-url-input\">http://</label>\n    <span>\n      <input type=\"text\"\n             id=\"zvelo-url-input\"\n             class=\"\"\n             "
+    + "\n             placeholder=\"zvelo.com (just start typing&hellip;)\"\n             autocomplete=\"off\"\n             spellcheck=\"false\">\n    <span>\n  </div>\n  <button type=\"submit\" class=\"btn btn-large btn-primary\">Lookup</button>\n</form>\n";
+  return buffer;
   });
 
 this["JST"]["modal"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -87,7 +89,7 @@ function program1(depth0,data) {
     + "</p>\n\n  <div class=\"categories\">\n    <select>\n      <option value=\"\">-- Suggest a Category --</option>\n      ";
   stack1 = helpers.each.call(depth0, depth0.categories, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n    </select>\n  </div>\n\n  <div class=\"controls\">\n    <button type=\"submit\" class=\"btn btn-danger report\">Report Miscategorization</button>\n    <button type=\"button\" class=\"btn btn-primary lookup\">Return to Lookup</button>\n  </div>\n</form>\n";
+  buffer += "\n    </select>\n  </div>\n\n  <div class=\"controls\">\n    <button type=\"submit\" class=\"btn btn-large btn-danger report\">Report Miscategorization</button>\n    <button type=\"button\" class=\"btn btn-large btn-primary lookup\">Return to Lookup</button>\n  </div>\n</form>\n";
   return buffer;
   });
 
@@ -99,13 +101,15 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 function program1(depth0,data) {
   
   var buffer = "";
-  buffer += "\n  <span class=\"span4 btn btn-large btn-inverse category\" disabled>"
+  buffer += "\n        <span class=\"category\">"
     + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
-    + "</span>\n  ";
+    + "</span>\n        ";
   return buffer;
   }
 
-  buffer += "<div class=\"row-fluid\">\n  <div class=\"span10\">\n    <p class=\"lead url\" title=\"";
+  buffer += "<div class=\"row-fluid\">\n  <div class=\"span10\">"
+    + "\n    <div class=\"row-fluid\">"
+    + "\n      <p class=\"span12 lead url\" title=\"";
   if (stack1 = helpers.url) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.url; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -113,18 +117,22 @@ function program1(depth0,data) {
   if (stack1 = helpers.url) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.url; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</p>\n  </div>\n\n  <div class=\"span2 reputation ";
+    + "</p>\n    </div>\n\n    <div class=\"row-fluid\">"
+    + "\n      <div class=\"span12 categories\">\n        ";
+  stack1 = helpers.each.call(depth0, depth0.categories, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n      </div>\n    </div>\n  </div>"
+    + "\n\n  <div class=\"span2 reputation\">"
+    + "\n    <div class=\"aspect\"></div>\n    <div class=\"img reputation";
   if (stack1 = helpers.reputationId) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputationId; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\">\n    <p>";
+    + "\">\n      "
+    + "\n    </div>\n    <p>";
   if (stack1 = helpers.reputation) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputation; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</p>\n  </div>\n</div>\n\n<div class=\"categories row-fluid\">\n  ";
-  stack1 = helpers.each.call(depth0, depth0.categories, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n</div>\n\n<div class=\"controls row-fluid\">\n  <button class=\"span3 btn btn-large btn-primary lookup\" title=\"Lookup another URL\">Lookup Another</button>\n  <button class=\"span3 btn btn-large btn-warning report\" title=\"Report this URL as miscategorized\">Miscategorized?</button>\n</div>\n";
+    + "</p>\n  </div>\n</div>\n\n<div class=\"controls\">\n  <button class=\"btn btn-large btn-primary lookup\" title=\"Lookup another URL\">Lookup Another URL</button>\n  <button class=\"btn btn-large btn-warning report\" title=\"Report this URL as miscategorized\">Miscategorized?</button>\n</div>\n";
   return buffer;
   });
 

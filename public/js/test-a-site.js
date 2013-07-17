@@ -27,6 +27,7 @@
 
       TestASite.prototype.onDomReady = function() {
         var defaultUrl, last, next;
+        document.addEventListener("keydown", this.onKeyDown.bind(this));
         this.showLoadingModal();
         next = this.zn.ready.then(this.znReady.bind(this)).then(this.show.bind(this, "lookup"));
         defaultUrl = window.location.hash.slice(1);
@@ -36,6 +37,25 @@
           last = next.then(Modal.hide);
         }
         return last.otherwise(this.showErrorModal.bind(this));
+      };
+
+      TestASite.prototype.onKeyDown = function(ev) {
+        var ENTER, SPACE, TAB, input, lookupBtn, _ref;
+        input = getEl("input");
+        lookupBtn = getEl("button");
+        if (!((input != null) && (lookupBtn != null))) {
+          return;
+        }
+        if (document.activeElement === input) {
+          return;
+        }
+        if (ev.altGraphKey || ev.metaKey || ev.altKey || ev.shiftKey || ev.ctrlKey) {
+          return;
+        }
+        if ((_ref = ev.keyCode) === (ENTER = 13) || _ref === (SPACE = 32) || _ref === (TAB = 65)) {
+          return;
+        }
+        return input.focus();
       };
 
       TestASite.prototype.znReady = function() {
@@ -102,6 +122,7 @@
           header: "Warning",
           body: body,
           btn: "OK",
+          close: true,
           onClose: cb
         }).show();
       };

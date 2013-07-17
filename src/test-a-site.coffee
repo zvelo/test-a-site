@@ -28,6 +28,8 @@ define [
       domReady @onDomReady.bind(this)
 
     onDomReady: ->
+      document.addEventListener "keydown", @onKeyDown.bind(this)
+
       @showLoadingModal()
 
       next = @zn.ready
@@ -40,6 +42,23 @@ define [
       else               last = next.then Modal.hide
 
       last.otherwise @showErrorModal.bind(this)
+
+    onKeyDown: (ev) ->
+      input     = getEl("input")
+      lookupBtn = getEl("button")
+
+      return unless input? and lookupBtn?
+      return if document.activeElement is input
+
+      return if ev.altGraphKey or
+                ev.metaKey     or
+                ev.altKey      or
+                ev.shiftKey    or
+                ev.ctrlKey
+
+      return if ev.keyCode in [ ENTER = 13, SPACE = 32, TAB = 65 ]
+
+      input.focus()
 
     znReady: ->
       categories = ZveloNET.categorySort(@zn["categories.txt"])
@@ -94,6 +113,7 @@ define [
         header: "Warning"
         body: body
         btn: "OK"
+        close: true
         onClose: cb).show()
 
     showLoadingModal: ->

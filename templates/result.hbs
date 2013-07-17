@@ -1,20 +1,28 @@
 <div class="row-fluid">
-  <div class="span10">
-    <p class="lead url" title="{{url}}">{{url}}</p>
-  </div>
+  <div class="span10">{{! outer row col 1 }}
+    <div class="row-fluid">{{! inner row 1 }}
+      <p class="span12 lead url" title="{{url}}">{{url}}</p>
+    </div>
 
-  <div class="span2 reputation {{reputationId}}">
+    <div class="row-fluid">{{! inner row 2 }}
+      <div class="span12 categories">
+        {{#each categories}}
+        <span class="category">{{this}}</span>
+        {{/each}}
+      </div>
+    </div>
+  </div>{{! end outer row col 1 }}
+
+  <div class="span2 reputation">{{! outer row col 2 }}
+    <div class="aspect"></div>
+    <div class="img reputation{{reputationId}}">
+      {{! <div class="fill"></div> }}
+    </div>
     <p>{{reputation}}</p>
   </div>
 </div>
 
-<div class="categories row-fluid">
-  {{#each categories}}
-  <span class="span4 btn btn-large btn-inverse category" disabled>{{this}}</span>
-  {{/each}}
-</div>
-
-<div class="controls row-fluid">
-  <button class="span3 btn btn-large btn-primary lookup" title="Lookup another URL">Lookup Another</button>
-  <button class="span3 btn btn-large btn-warning report" title="Report this URL as miscategorized">Miscategorized?</button>
+<div class="controls">
+  <button class="btn btn-large btn-primary lookup" title="Lookup another URL">Lookup Another URL</button>
+  <button class="btn btn-large btn-warning report" title="Report this URL as miscategorized">Miscategorized?</button>
 </div>

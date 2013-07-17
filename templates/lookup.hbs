@@ -1,8 +1,15 @@
 <form>
-  <input type="text"
-         class="input-block-level"
-         placeholder="http://zvelo.com"
-         autocomplete="off"
-         spellcheck="false">
+  <div class="lookup-row">
+    <label class="" for="zvelo-url-input">http://</label>
+    <span>
+      <input type="text"
+             id="zvelo-url-input"
+             class=""
+             {{! lighten up placeholder text }}
+             placeholder="zvelo.com (just start typing&hellip;)"
+             autocomplete="off"
+             spellcheck="false">
+    <span>
+  </div>
   <button type="submit" class="btn btn-large btn-primary">Lookup</button>
 </form>
