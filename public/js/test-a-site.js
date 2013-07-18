@@ -244,13 +244,15 @@
       };
 
       TestASite.prototype.getPath = function() {
-        var arg, page, ret, _ref;
-        _ref = location.hash.slice(1).split('/'), page = _ref[0], arg = _ref[1];
+        var arg, page, parts, ret;
+        parts = location.hash.slice(1).split('/');
+        page = parts.shift();
+        arg = parts.join('/');
         ret = {
           page: page
         };
-        if (arg != null) {
-          ret["arg"] = decodeURIComponent(arg);
+        if (arg != null ? arg.length : void 0) {
+          ret["arg"] = arg;
         }
         return ret;
       };
@@ -263,7 +265,7 @@
         }
         path = "" + page;
         if (arg != null) {
-          path += "/" + (encodeURIComponent(arg));
+          path += "/" + arg;
         }
         if (((_ref = window.history) != null ? _ref.pushState : void 0) != null) {
           return history.pushState(data, document.title, "" + location.pathname + "#" + path);

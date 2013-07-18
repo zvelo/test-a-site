@@ -208,9 +208,12 @@ define [
       .otherwise(@showErrorModal.bind this)
 
     getPath: ->
-      [ page, arg ] = location.hash[1..].split('/')
+      parts = location.hash[1..].split('/')
+      page = parts.shift()
+      arg = parts.join('/')
+
       ret = page: page
-      ret["arg"] = decodeURIComponent arg if arg?
+      ret["arg"] = arg if arg?.length
       return ret
 
     setPath: (page, arg, data) ->
@@ -220,7 +223,7 @@ define [
       return if curPath.page is page and curPath.arg is arg
 
       path  = "#{page}"
-      path += "/#{encodeURIComponent arg}" if arg?
+      path += "/#{arg}" if arg?
 
       if window.history?.pushState?
         history.pushState data,
