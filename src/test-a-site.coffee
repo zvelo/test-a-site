@@ -29,24 +29,14 @@ define [
 
     onDomReady: ->
       document.addEventListener "keydown", @onKeyDown.bind(this)
+      window.onpopstate = @onPopState.bind(this)
 
       @showLoadingModal()
 
-      next = @zn.ready
+      @zn.ready
         .then(@znReady.bind this)
-        .then(@show.bind this, "lookup")
-
-      defaultUrl = window.location.hash[1..]
-
-      if defaultUrl
-        last = next.then @doLookup.bind this, defaultUrl
-      else
-        that = this
-        last = next.then ->
-          that.loadingModal.hide()
-          delete that.loadingModal
-
-      last.otherwise @showErrorModal.bind(this)
+        .then(@route.bind this)
+        .otherwise(@showErrorModal.bind this)
 
     onKeyDown: (ev) ->
       return if Modal.current?
@@ -74,9 +64,23 @@ define [
         return false if value.name.indexOf("Custom User Type ") is 0
         return true
 
-    show: (tpl, ctx) ->
-      @ctx = ctx or {}
-      getEl().innerHTML = templates[tpl] @ctx
+      return
+
+    onPopState: (ev) -> @route ev.state
+
+    route: (data) ->
+      path = @getPath()
+
+      switch path.page
+        when ""       then path.page = "lookup"
+        when "report" then path.page = "lookup" unless data?
+
+      @show path.page, data, path
+
+    show: (tpl, data, path) ->
+      @loadingModal?.hide()
+      @data = data or {}
+      getEl().innerHTML = templates[tpl] @data
 
       ## setup listeners
 
@@ -84,23 +88,35 @@ define [
       lookup?.addEventListener "click", @show.bind(this, "lookup")
 
       switch tpl
-        when "lookup"
-          window.location.hash = ""
-
-          getEl("input").focus()
-          getEl("form").addEventListener "submit", @submitLookup.bind(this)
+        when "lookup" then @showLookup data
+        when "report" then @showReport data
         when "result"
-          lookup.focus()
+          ## loading from an ajax query or history result
+          return @showResult data, lookup if data?.url?
 
-          getEl(".btn.report").addEventListener "click",
-            @show.bind(this, "report",
-              url: @ctx.url
-              categories: @categories)
-        when "report"
-          getEl("form").addEventListener "submit", @submitReport.bind(this)
-          getEl("select").focus()
-        when "uncategorized"
-          lookup.focus()
+          if path? ## loading from a url path
+            @show "lookup", lookup
+            @doLookup path.arg if path.arg?
+
+    showResult: (data, lookup) ->
+      console.log "result", data
+      @setPath "result", data.url, data
+      lookup.focus()
+      getEl(".btn.report")?.addEventListener "click",
+        @show.bind(this, "report",
+          url: @data.url
+          categories: @categories)
+
+    showLookup: (data) ->
+      @setPath "lookup"
+
+      getEl("input").focus()
+      getEl("form").addEventListener "submit", @submitLookup.bind(this)
+
+    showReport: (data) ->
+      @setPath "report", undefined, data
+      getEl("form").addEventListener "submit", @submitReport.bind(this)
+      getEl("select").focus()
 
     showErrorModal: ->
       for arg in arguments
@@ -192,13 +208,31 @@ define [
       .then(@onReportResponse.bind this)
       .otherwise(@showErrorModal.bind this)
 
-    onLookupResponse: (data) ->
-      window.location.hash = "##{data.url}"
-      @authModal.hide()
-      if data?.categories? and Object.keys(data.categories).length
-        @show "result", data
+    getPath: ->
+      [ page, arg ] = location.hash[1..].split('/')
+      ret = page: page
+      ret["arg"] = decodeURIComponent arg if arg?
+      return ret
+
+    setPath: (page, arg, data) ->
+      ## TODO(jrubin) it would be more helpful if the title were more
+      ## descriptive for each "sub-page"
+      curPath = @getPath()
+      return if curPath.page is page and curPath.arg is arg
+
+      path  = "#{page}"
+      path += "/#{encodeURIComponent arg}" if arg?
+
+      if window.history?.pushState?
+        history.pushState data,
+                          document.title,
+                          "#{location.pathname}##{path}"
       else
-        @show "uncategorized", data
+        location.hash = "##{path}"
+
+    onLookupResponse: (data) ->
+      @authModal.hide()
+      @show "result", data
 
     onReportResponse: (data) ->
       new Modal(

@@ -1,6 +1,7 @@
 .modal.authorizing .modal-body{height:11rem;text-align:center;}
 .modal.authorizing .modal-body img{margin-bottom:1rem}
-#zvelonet{max-width:1170px;margin-right:auto;margin-left:auto;-webkit-border-radius:6px;border-radius:6px}
+#zvelonet{max-width:940px;margin-right:auto;margin-left:auto;}
+#zvelonet,#zvelonet *{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
 #zvelonet input,#zvelonet label,#zvelonet .lead{font-size:2rem;line-height:2.5rem}
 #zvelonet .inner-container{border:1px solid #e5e5e5;-webkit-border-radius:6px;border-radius:6px;background-color:#fff;padding:1rem}
 #zvelonet .controls{text-align:center;padding-top:1rem;}

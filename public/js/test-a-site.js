@@ -26,21 +26,10 @@
       }
 
       TestASite.prototype.onDomReady = function() {
-        var defaultUrl, last, next, that;
         document.addEventListener("keydown", this.onKeyDown.bind(this));
+        window.onpopstate = this.onPopState.bind(this);
         this.showLoadingModal();
-        next = this.zn.ready.then(this.znReady.bind(this)).then(this.show.bind(this, "lookup"));
-        defaultUrl = window.location.hash.slice(1);
-        if (defaultUrl) {
-          last = next.then(this.doLookup.bind(this, defaultUrl));
-        } else {
-          that = this;
-          last = next.then(function() {
-            that.loadingModal.hide();
-            return delete that.loadingModal;
-          });
-        }
-        return last.otherwise(this.showErrorModal.bind(this));
+        return this.zn.ready.then(this.znReady.bind(this)).then(this.route.bind(this)).otherwise(this.showErrorModal.bind(this));
       };
 
       TestASite.prototype.onKeyDown = function(ev) {
@@ -68,7 +57,7 @@
       TestASite.prototype.znReady = function() {
         var categories;
         categories = ZveloNET.categorySort(this.zn["categories.txt"]);
-        return this.categories = categories.filter(function(value) {
+        this.categories = categories.filter(function(value) {
           if (value.name.indexOf("Custom User Type ") === 0) {
             return false;
           }
@@ -76,31 +65,75 @@
         });
       };
 
-      TestASite.prototype.show = function(tpl, ctx) {
-        var lookup;
-        this.ctx = ctx || {};
-        getEl().innerHTML = templates[tpl](this.ctx);
+      TestASite.prototype.onPopState = function(ev) {
+        return this.route(ev.state);
+      };
+
+      TestASite.prototype.route = function(data) {
+        var path;
+        path = this.getPath();
+        switch (path.page) {
+          case "":
+            path.page = "lookup";
+            break;
+          case "report":
+            if (data == null) {
+              path.page = "lookup";
+            }
+        }
+        return this.show(path.page, data, path);
+      };
+
+      TestASite.prototype.show = function(tpl, data, path) {
+        var lookup, _ref;
+        if ((_ref = this.loadingModal) != null) {
+          _ref.hide();
+        }
+        this.data = data || {};
+        getEl().innerHTML = templates[tpl](this.data);
         lookup = getEl(".btn.lookup");
         if (lookup != null) {
           lookup.addEventListener("click", this.show.bind(this, "lookup"));
         }
         switch (tpl) {
           case "lookup":
-            window.location.hash = "";
-            getEl("input").focus();
-            return getEl("form").addEventListener("submit", this.submitLookup.bind(this));
-          case "result":
-            lookup.focus();
-            return getEl(".btn.report").addEventListener("click", this.show.bind(this, "report", {
-              url: this.ctx.url,
-              categories: this.categories
-            }));
+            return this.showLookup(data);
           case "report":
-            getEl("form").addEventListener("submit", this.submitReport.bind(this));
-            return getEl("select").focus();
-          case "uncategorized":
-            return lookup.focus();
+            return this.showReport(data);
+          case "result":
+            if ((data != null ? data.url : void 0) != null) {
+              return this.showResult(data, lookup);
+            }
+            if (path != null) {
+              this.show("lookup", lookup);
+              if (path.arg != null) {
+                return this.doLookup(path.arg);
+              }
+            }
         }
+      };
+
+      TestASite.prototype.showResult = function(data, lookup) {
+        var _ref;
+        console.log("result", data);
+        this.setPath("result", data.url, data);
+        lookup.focus();
+        return (_ref = getEl(".btn.report")) != null ? _ref.addEventListener("click", this.show.bind(this, "report", {
+          url: this.data.url,
+          categories: this.categories
+        })) : void 0;
+      };
+
+      TestASite.prototype.showLookup = function(data) {
+        this.setPath("lookup");
+        getEl("input").focus();
+        return getEl("form").addEventListener("submit", this.submitLookup.bind(this));
+      };
+
+      TestASite.prototype.showReport = function(data) {
+        this.setPath("report", void 0, data);
+        getEl("form").addEventListener("submit", this.submitReport.bind(this));
+        return getEl("select").focus();
       };
 
       TestASite.prototype.showErrorModal = function() {
@@ -211,14 +244,38 @@
         }).then(this.onReportResponse.bind(this)).otherwise(this.showErrorModal.bind(this));
       };
 
-      TestASite.prototype.onLookupResponse = function(data) {
-        window.location.hash = "#" + data.url;
-        this.authModal.hide();
-        if (((data != null ? data.categories : void 0) != null) && Object.keys(data.categories).length) {
-          return this.show("result", data);
-        } else {
-          return this.show("uncategorized", data);
+      TestASite.prototype.getPath = function() {
+        var arg, page, ret, _ref;
+        _ref = location.hash.slice(1).split('/'), page = _ref[0], arg = _ref[1];
+        ret = {
+          page: page
+        };
+        if (arg != null) {
+          ret["arg"] = decodeURIComponent(arg);
         }
+        return ret;
+      };
+
+      TestASite.prototype.setPath = function(page, arg, data) {
+        var curPath, path, _ref;
+        curPath = this.getPath();
+        if (curPath.page === page && curPath.arg === arg) {
+          return;
+        }
+        path = "" + page;
+        if (arg != null) {
+          path += "/" + (encodeURIComponent(arg));
+        }
+        if (((_ref = window.history) != null ? _ref.pushState : void 0) != null) {
+          return history.pushState(data, document.title, "" + location.pathname + "#" + path);
+        } else {
+          return location.hash = "#" + path;
+        }
+      };
+
+      TestASite.prototype.onLookupResponse = function(data) {
+        this.authModal.hide();
+        return this.show("result", data);
       };
 
       TestASite.prototype.onReportResponse = function(data) {

@@ -1,26 +1,32 @@
 <div class="inner-container row-fluid">
-  <div class="span10">{{! outer row col 1 }}
-    <div class="row-fluid">{{! inner row 1 }}
-      <p class="span12 lead url" title="{{url}}">{{url}}</p>
-    </div>
+  <div class="span10">
+    <p class="lead url" title="{{url}}">{{url}}</p>
 
-    <div class="row-fluid">{{! inner row 2 }}
-      <div class="span12 categories">
-        {{#each categories}}
-        <span class="category">{{this}}</span>
-        {{/each}}
-      </div>
+    {{#if reputationId}}
+    <div class="categories">
+      {{#each categories}}
+      <span class="category">{{this}}</span>
+      {{/each}}
     </div>
-  </div>{{! end outer row col 1 }}
+    {{else}}
+    <p class="uncategorized">
+    This URL has not yet been categorized. It has been submitted for classification.
+    </p>
+    {{/if}}
+  </div>
 
-  <div class="span2 reputation">{{! outer row col 2 }}
+  {{#if reputationId}}
+  <div class="span2 reputation">
     <div class="aspect"></div>
     <div class="img reputation{{reputationId}}"></div>
     <p>{{reputation}}</p>
   </div>
+  {{/if}}
 </div>
 
 <div class="controls">
   <button class="btn btn-large btn-primary lookup" title="Lookup another URL">Lookup Another URL</button>
+  {{#if reputationId}}
   <button class="btn btn-large btn-warning report" title="Report this URL as miscategorized">Miscategorized?</button>
+  {{/if}}
 </div>
