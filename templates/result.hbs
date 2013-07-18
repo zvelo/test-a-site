@@ -1,5 +1,5 @@
 <div class="inner-container row-fluid">
-  <div class="span10">
+  <div class="span9">
     <p class="lead url" title="{{url}}">{{url}}</p>
 
     {{#if reputationId}}
@@ -16,10 +16,12 @@
   </div>
 
   {{#if reputationId}}
-  <div class="span2 reputation">
-    <div class="aspect"></div>
-    <div class="img reputation{{reputationId}}"></div>
-    <p>{{reputation}}</p>
+  <div class="span3">
+    <div class="reputation">
+      <div class="aspect"></div>
+      <div class="img reputation{{reputationId}}"></div>
+      <p>{{reputation}}</p>
+    </div>
   </div>
   {{/if}}
 </div>

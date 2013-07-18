@@ -1,7 +1,27 @@
+$line-height = 1.3rem
+$vertical-padding = 0.5rem
+$category-height = $line-height + 2 * $vertical-padding
+
+.category:before
+  position absolute
+  top 0
+  left 0
+  content " "
+  width 0
+  height 0
+  border-top    ($category-height / 2) solid transparent
+  border-bottom ($category-height / 2) solid transparent
+  border-left   ($category-height / 2) solid white  // TODO(jrubin)
+
+
 .category
-  // TODO(jrubin) scale this as necessary
-  // TODO(jrubin) change font
-  // TODO(jrubin) make look like a flag
+  position relative
   max-width 100%
   white-space nowrap
   display inline-block
+  color white  // TODO(jrubin)
+  background $fontColor
+  padding $vertical-padding 1rem $vertical-padding 2rem
+  border-radius right ($category-height / 2)
+  line-height $line-height
+  font-weight 200
