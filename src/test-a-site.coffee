@@ -99,7 +99,6 @@ define [
             @doLookup path.arg if path.arg?
 
     showResult: (data, lookup) ->
-      console.log "result", data
       @setPath "result", data.url, data
       lookup.focus()
       getEl(".btn.report")?.addEventListener "click",

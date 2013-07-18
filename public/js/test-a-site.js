@@ -115,7 +115,6 @@
 
       TestASite.prototype.showResult = function(data, lookup) {
         var _ref;
-        console.log("result", data);
         this.setPath("result", data.url, data);
         lookup.focus();
         return (_ref = getEl(".btn.report")) != null ? _ref.addEventListener("click", this.show.bind(this, "report", {
