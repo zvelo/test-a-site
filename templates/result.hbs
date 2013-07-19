@@ -16,12 +16,12 @@
   </div>
 
   {{#if reputationId}}
-  <div class="span3">
-    <div class="reputation">
+  <div class="span3 reputation reputation{{reputationId}}">
+    <div class="reputation-img-container">
       <div class="aspect"></div>
-      <div class="img reputation{{reputationId}}"></div>
-      <p>{{reputation}}</p>
+      <div class="img"></div>
     </div>
+    <p>{{reputation}}</p>
   </div>
   {{/if}}
 </div>

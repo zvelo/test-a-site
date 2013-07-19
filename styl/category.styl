@@ -13,6 +13,16 @@ $category-height = $line-height + 2 * $vertical-padding
   border-bottom ($category-height / 2) solid transparent
   border-left   ($category-height / 2) solid white  // TODO(jrubin)
 
+.category:after
+  position absolute
+  top 0
+  right 0
+  content " "
+  width 0
+  height 0
+  border-top    ($category-height / 2) solid white
+  border-bottom ($category-height / 2) solid white
+  border-left   ($category-height / 2) solid transparent  // TODO(jrubin)
 
 .category
   position relative
@@ -21,7 +31,7 @@ $category-height = $line-height + 2 * $vertical-padding
   display inline-block
   color white  // TODO(jrubin)
   background $fontColor
-  padding $vertical-padding 1rem $vertical-padding 2rem
-  border-radius right ($category-height / 2)
+  padding $vertical-padding 2rem $vertical-padding 2rem
   line-height $line-height
   font-weight 200
+  text-transform uppercase

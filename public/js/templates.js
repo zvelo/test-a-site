@@ -123,15 +123,15 @@ function program4(depth0,data) {
 function program6(depth0,data) {
   
   var buffer = "", stack1;
-  buffer += "\n  <div class=\"span3\">\n    <div class=\"reputation\">\n      <div class=\"aspect\"></div>\n      <div class=\"img reputation";
+  buffer += "\n  <div class=\"span3 reputation reputation";
   if (stack1 = helpers.reputationId) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputationId; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\"></div>\n      <p>";
+    + "\">\n    <div class=\"reputation-img-container\">\n      <div class=\"aspect\"></div>\n      <div class=\"img\"></div>\n    </div>\n    <p>";
   if (stack1 = helpers.reputation) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputation; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</p>\n    </div>\n  </div>\n  ";
+    + "</p>\n  </div>\n  ";
   return buffer;
   }
 
