@@ -108,7 +108,9 @@ function program1(depth0,data) {
 function program2(depth0,data) {
   
   var buffer = "";
-  buffer += "\n      <span class=\"category\">"
+  buffer += "\n      <span class=\"category\" title=\""
+    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
+    + "\">"
     + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
     + "</span>\n      ";
   return buffer;
@@ -127,7 +129,11 @@ function program6(depth0,data) {
   if (stack1 = helpers.reputationId) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputationId; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "\">\n    <div class=\"reputation-img-container\">\n      <div class=\"aspect\"></div>\n      <div class=\"img\"></div>\n    </div>\n    <p>";
+    + "\">\n    <div class=\"reputation-img-container\">\n      <div class=\"aspect\"></div>\n      <div class=\"img\"></div>\n    </div>\n    <p title=\"";
+  if (stack1 = helpers.reputation) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.reputation; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">";
   if (stack1 = helpers.reputation) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputation; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)

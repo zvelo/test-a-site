@@ -5,7 +5,7 @@
     {{#if reputationId}}
     <div class="categories">
       {{#each categories}}
-      <span class="category">{{this}}</span>
+      <span class="category" title="{{this}}">{{this}}</span>
       {{/each}}
     </div>
     {{else}}
@@ -21,7 +21,7 @@
       <div class="aspect"></div>
       <div class="img"></div>
     </div>
-    <p>{{reputation}}</p>
+    <p title="{{reputation}}">{{reputation}}</p>
   </div>
   {{/if}}
 </div>
