@@ -80,6 +80,8 @@ define [
     show: (tpl, data, path) ->
       @loadingModal?.hide()
       @data = data or {}
+      @data = {} unless @data?.url? or path?
+      @data.page = tpl
       getEl().innerHTML = templates[tpl] @data
 
       ## setup listeners
@@ -88,32 +90,32 @@ define [
       lookup?.addEventListener "click", @show.bind(this, "lookup")
 
       switch tpl
-        when "lookup" then @showLookup data
-        when "report" then @showReport data
+        when "lookup" then @showLookup()
+        when "report" then @showReport()
         when "result"
           ## loading from an ajax query or history result
-          return @showResult data, lookup if data?.url?
+          return @showResult lookup if @data?.url?
 
           if path? ## loading from a url path
             @show "lookup", lookup
             @doLookup path.arg if path.arg?
 
-    showResult: (data, lookup) ->
-      @setPath "result", data.url, data
+    showResult: (lookup) ->
+      @setPath "result", @data.url
       lookup.focus()
       getEl(".btn.report")?.addEventListener "click",
         @show.bind(this, "report",
           url: @data.url
           categories: @categories)
 
-    showLookup: (data) ->
+    showLookup: ->
       @setPath "lookup"
 
       getEl("input").focus()
       getEl("form").addEventListener "submit", @submitLookup.bind(this)
 
-    showReport: (data) ->
-      @setPath "report", undefined, data
+    showReport: ->
+      @setPath "report"
       getEl("form").addEventListener "submit", @submitReport.bind(this)
       getEl("select").focus()
 
@@ -216,7 +218,7 @@ define [
       ret["arg"] = arg if arg?.length
       return ret
 
-    setPath: (page, arg, data) ->
+    setPath: (page, arg) ->
       ## TODO(jrubin) it would be more helpful if the title were more
       ## descriptive for each "sub-page"
       curPath = @getPath()
@@ -226,7 +228,7 @@ define [
       path += "/#{arg}" if arg?
 
       if window.history?.pushState?
-        history.pushState data,
+        history.pushState @data,
                           document.title,
                           "#{location.pathname}##{path}"
       else

@@ -85,11 +85,15 @@
       };
 
       TestASite.prototype.show = function(tpl, data, path) {
-        var lookup, _ref;
+        var lookup, _ref, _ref1, _ref2;
         if ((_ref = this.loadingModal) != null) {
           _ref.hide();
         }
         this.data = data || {};
+        if (!((((_ref1 = this.data) != null ? _ref1.url : void 0) != null) || (path != null))) {
+          this.data = {};
+        }
+        this.data.page = tpl;
         getEl().innerHTML = templates[tpl](this.data);
         lookup = getEl(".btn.lookup");
         if (lookup != null) {
@@ -97,12 +101,12 @@
         }
         switch (tpl) {
           case "lookup":
-            return this.showLookup(data);
+            return this.showLookup();
           case "report":
-            return this.showReport(data);
+            return this.showReport();
           case "result":
-            if ((data != null ? data.url : void 0) != null) {
-              return this.showResult(data, lookup);
+            if (((_ref2 = this.data) != null ? _ref2.url : void 0) != null) {
+              return this.showResult(lookup);
             }
             if (path != null) {
               this.show("lookup", lookup);
@@ -113,9 +117,9 @@
         }
       };
 
-      TestASite.prototype.showResult = function(data, lookup) {
+      TestASite.prototype.showResult = function(lookup) {
         var _ref;
-        this.setPath("result", data.url, data);
+        this.setPath("result", this.data.url);
         lookup.focus();
         return (_ref = getEl(".btn.report")) != null ? _ref.addEventListener("click", this.show.bind(this, "report", {
           url: this.data.url,
@@ -123,14 +127,14 @@
         })) : void 0;
       };
 
-      TestASite.prototype.showLookup = function(data) {
+      TestASite.prototype.showLookup = function() {
         this.setPath("lookup");
         getEl("input").focus();
         return getEl("form").addEventListener("submit", this.submitLookup.bind(this));
       };
 
-      TestASite.prototype.showReport = function(data) {
-        this.setPath("report", void 0, data);
+      TestASite.prototype.showReport = function() {
+        this.setPath("report");
         getEl("form").addEventListener("submit", this.submitReport.bind(this));
         return getEl("select").focus();
       };
@@ -257,7 +261,7 @@
         return ret;
       };
 
-      TestASite.prototype.setPath = function(page, arg, data) {
+      TestASite.prototype.setPath = function(page, arg) {
         var curPath, path, _ref;
         curPath = this.getPath();
         if (curPath.page === page && curPath.arg === arg) {
@@ -268,7 +272,7 @@
           path += "/" + arg;
         }
         if (((_ref = window.history) != null ? _ref.pushState : void 0) != null) {
-          return history.pushState(data, document.title, "" + location.pathname + "#" + path);
+          return history.pushState(this.data, document.title, "" + location.pathname + "#" + path);
         } else {
           return location.hash = "#" + path;
         }
