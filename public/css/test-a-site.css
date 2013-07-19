@@ -24,7 +24,7 @@
 @media (max-width: 767px){#zvelonet .reputation .reputation-img-container,#zvelonet .reputation p{margin-right:auto}
 }#zvelonet .reputation .img{position:absolute;top:0;bottom:0;left:0;right:0;-webkit-background-size:100% auto;-moz-background-size:100% auto;background-size:100% auto;background-position:top right;background-repeat:no-repeat}
 #zvelonet .reputation .aspect{padding-top:98.34368530020703%}
-#zvelonet .reputation p{width:85%;text-align:center;border:1px solid #d5d5d5;background:#e5e5e5;-webkit-border-radius:6px;border-radius:6px;white-space:nowrap;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis;padding:.5rem;margin-top:.5rem;margin-bottom:0;font-weight:200;text-shadow:0 -1px 0 rgba(0,0,0,0.25);cursor:default}
+#zvelonet .reputation p{width:85%;text-align:center;border:1px solid #d5d5d5;background:#e5e5e5;-webkit-border-radius:6px;border-radius:6px;white-space:nowrap;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis;padding:.5rem;margin-top:.5rem;margin-bottom:0;text-shadow:0 -1px 0 rgba(0,0,0,0.25);cursor:default;font-size:1rem}
 #zvelonet .reputation.reputation700 .img{background-image:url("../img/zvelo-no-known-risk-a.png")}
 #zvelonet .reputation.reputation701 .img{background-image:url("../img/zvelo-possible-risk-a.png")}
 #zvelonet .reputation.reputation702 .img{background-image:url("../img/zvelo-medium-risk-a.png")}
