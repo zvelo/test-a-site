@@ -15,37 +15,42 @@ transitionEnd = ( ->
     return transEndEventNames[name] if el.style[name]?
 )()
 
-onTransitionEnd = (el, cb) ->
-  unless transitionEnd?
-    cb() if cb?
-    return
-
-  transitionEndFn = (ev) ->
-    el.removeEventListener transitionEnd, transitionEndFn, true
-    cb() if cb?
-
-  el.addEventListener transitionEnd, transitionEndFn, true
-
-addClass = (el, className, cb) ->
-  unless hasClass el, className
-    el.className += " #{className}"
-    onTransitionEnd el, cb if cb?
-  else cb() if cb?
-
-removeClass = (el, className, cb) ->
-  if hasClass el, className
-    re = new RegExp "(?:^|\\s)#{className}(?!\\S)", 'g'
-    el.className = el.className.replace re , ""
-    onTransitionEnd el, cb if cb?
-  else
-    cb() if cb?
-
 createEl = (html) ->
   container = document.createElement "div"
   container.innerHTML = html
   return container.firstChild
 
-define [ "event", "templates" ], (Event, templates) ->
+define [
+  "addevent"
+  "removeevent"
+  "event"
+  "templates"
+], (addEvent, removeEvent, Event, templates) ->
+  onTransitionEnd = (el, cb) ->
+    unless transitionEnd?
+      cb() if cb?
+      return
+
+    transitionEndFn = (ev) ->
+      removeEvent el, transitionEnd, transitionEndFn
+      cb() if cb?
+
+    addEvent el, transitionEnd, transitionEndFn
+
+  addClass = (el, className, cb) ->
+    unless hasClass el, className
+      el.className += " #{className}"
+      onTransitionEnd el, cb if cb?
+    else cb() if cb?
+
+  removeClass = (el, className, cb) ->
+    if hasClass el, className
+      re = new RegExp "(?:^|\\s)#{className}(?!\\S)", 'g'
+      el.className = el.className.replace re , ""
+      onTransitionEnd el, cb if cb?
+    else
+      cb() if cb?
+
   class Modal extends Event
     @hideCurrent: (cb) ->
       unless Modal.current? or Modal.status is "hidden"
@@ -95,7 +100,7 @@ define [ "event", "templates" ], (Event, templates) ->
                            "\"></div>"
       document.body.appendChild @backdrop
 
-      @backdrop.addEventListener "click", @hide.bind(this) if @ctx.close
+      addEvent @backdrop, "click", @hide.bind(this) if @ctx.close
 
       @backdrop.offsetWidth  ## force reflow
       @_addClass @backdrop, "in", @trigger.bind(this, "backdrop shown")
@@ -132,7 +137,7 @@ define [ "event", "templates" ], (Event, templates) ->
 
       if @ctx.close
         @onKeyUp = (ev) -> that.hide() if ev.which is 27  ## escape
-        document.body.addEventListener "keyup", @onKeyUp, true
+        addEvent document.body, "keyup", @onKeyUp
 
       document.body.appendChild @el
 
@@ -146,11 +151,11 @@ define [ "event", "templates" ], (Event, templates) ->
 
       if @ctx.btn
         btn = @el.getElementsByClassName("btn btn-primary")[0]
-        btn.addEventListener "click", @hide.bind(this), true
+        addEvent btn, "click", @hide.bind(this)
 
       if @ctx.close
         xBtn = @el.getElementsByClassName("close")[0]
-        xBtn.addEventListener "click", @hide.bind(this), true
+        addEvent xBtn, "click", @hide.bind(this)
 
       @_addClass @el, "in", @trigger.bind(this, "modal shown")
 
@@ -174,14 +179,12 @@ define [ "event", "templates" ], (Event, templates) ->
       return unless @status is "shown"
 
       @_setStatus "hiding"
-
-      that = this
       @_removeClass @el, "in", @trigger.bind(this, "modal hidden")
 
       return this
 
     _removeBackdrop: ->
-      document.body.removeEventListener "keyup", @onKeyUp, true if @onKeyUp?
+      removeEvent document.body, "keyup", @onKeyUp, true if @onKeyUp?
       document.body.removeChild @backdrop if @backdrop?
       delete Modal.current if Modal.current is this
       delete @backdrop
