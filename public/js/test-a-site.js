@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  define(["domReady", "addevent", "sethtml", "zvelonet", "modal", "templates"], function(domReady, addEvent, setHtml, ZveloNET, Modal, templates) {
+  define(["domReady", "listener", "sethtml", "zvelonet", "modal", "templates"], function(domReady, listener, setHtml, ZveloNET, Modal, templates) {
     var TestASite, getEl;
     getEl = function(selector) {
       return document.querySelector("#zvelonet " + (selector || ""));
@@ -26,7 +26,7 @@
       }
 
       TestASite.prototype.onDomReady = function() {
-        addEvent(document, "keydown", this.onKeyDown.bind(this));
+        listener.add(document, "keydown", this.onKeyDown.bind(this));
         window.onpopstate = this.onPopState.bind(this);
         this.showLoadingModal();
         return this.zn.ready.then(this.znReady.bind(this)).then(this.route.bind(this)).otherwise(this.showErrorModal.bind(this));
@@ -96,7 +96,7 @@
         this.data.page = tpl;
         setHtml(getEl(), templates[tpl](this.data));
         lookup = getEl(".btn.lookup");
-        addEvent(lookup, "click", this.show.bind(this, "lookup"));
+        listener.add(lookup, "click", this.show.bind(this, "lookup"));
         switch (tpl) {
           case "lookup":
             return this.showLookup();
@@ -117,7 +117,7 @@
 
       TestASite.prototype.showResult = function(lookup) {
         this.setPath("result", this.data.url);
-        return addEvent(getEl(".btn.report"), "click", this.show.bind(this, "report", {
+        return listener.add(getEl(".btn.report"), "click", this.show.bind(this, "report", {
           url: this.data.url,
           categories: this.categories
         }));
@@ -125,12 +125,12 @@
 
       TestASite.prototype.showLookup = function() {
         this.setPath("lookup");
-        return addEvent(getEl("form"), "submit", this.submitLookup.bind(this));
+        return listener.add(getEl("form"), "submit", this.submitLookup.bind(this));
       };
 
       TestASite.prototype.showReport = function() {
         this.setPath("report");
-        return addEvent(getEl("form"), "submit", this.submitReport.bind(this));
+        return listener.add(getEl("form"), "submit", this.submitReport.bind(this));
       };
 
       TestASite.prototype.showErrorModal = function() {
@@ -209,7 +209,9 @@
         if ((ev != null ? ev.preventDefault : void 0) != null) {
           ev.preventDefault();
         } else {
-          ev.returnValue = false;
+          if (ev != null) {
+            ev.returnValue = false;
+          }
         }
         url = getEl("input").value;
         if (!(url != null ? url.length : void 0)) {
@@ -225,13 +227,16 @@
       };
 
       TestASite.prototype.submitReport = function(ev) {
-        var categoryId, url, _ref;
+        var categoryId, select, url, _ref;
         if ((ev != null ? ev.preventDefault : void 0) != null) {
           ev.preventDefault();
         } else {
-          ev.returnValue = false;
+          if (ev != null) {
+            ev.returnValue = false;
+          }
         }
-        categoryId = parseInt((_ref = getEl("select :selected")) != null ? _ref.value : void 0, 10);
+        select = getEl("select");
+        categoryId = parseInt(select != null ? (_ref = select.options[select != null ? select.selectedIndex : void 0]) != null ? _ref.value : void 0 : void 0, 10);
         if (isNaN(categoryId)) {
           return this.showWarning("Please choose a category");
         }

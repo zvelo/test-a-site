@@ -2,12 +2,12 @@
 
 define [
   "domReady"
-  "addevent"
+  "listener"
   "sethtml"
   "zvelonet"
   "modal"
   "templates"
-], (domReady, addEvent, setHtml, ZveloNET, Modal, templates) ->
+], (domReady, listener, setHtml, ZveloNET, Modal, templates) ->
   getEl = (selector) -> document.querySelector("#zvelonet #{selector or ""}")
 
   class TestASite
@@ -29,7 +29,7 @@ define [
       domReady @onDomReady.bind(this)
 
     onDomReady: ->
-      addEvent document, "keydown", @onKeyDown.bind(this)
+      listener.add document, "keydown", @onKeyDown.bind(this)
       window.onpopstate = @onPopState.bind(this)
 
       @showLoadingModal()
@@ -42,8 +42,8 @@ define [
     onKeyDown: (ev) ->
       return if Modal.current?
 
-      input     = getEl("input")
-      lookupBtn = getEl("button")
+      input     = getEl "input"
+      lookupBtn = getEl "button"
 
       return unless input? and lookupBtn?
       return if document.activeElement is input
@@ -88,7 +88,7 @@ define [
       ## setup listeners
 
       lookup = getEl(".btn.lookup")
-      addEvent lookup, "click", @show.bind(this, "lookup")
+      listener.add lookup, "click", @show.bind(this, "lookup")
 
       switch tpl
         when "lookup" then @showLookup()
@@ -103,18 +103,18 @@ define [
 
     showResult: (lookup) ->
       @setPath "result", @data.url
-      addEvent getEl(".btn.report"), "click",
+      listener.add getEl(".btn.report"), "click",
         @show.bind(this, "report",
           url: @data.url
           categories: @categories)
 
     showLookup: ->
       @setPath "lookup"
-      addEvent getEl("form"), "submit", @submitLookup.bind(this)
+      listener.add getEl("form"), "submit", @submitLookup.bind(this)
 
     showReport: ->
       @setPath "report"
-      addEvent getEl("form"), "submit", @submitReport.bind(this)
+      listener.add getEl("form"), "submit", @submitReport.bind(this)
 
     showErrorModal: ->
       for arg in arguments
@@ -167,14 +167,14 @@ define [
       @authModal.setBody body
 
     doLookup: (url) ->
-      input = getEl("input")
+      input = getEl "input"
       return unless input?
       input.value = url unless input.value.length
       @submitLookup()
 
     submitLookup: (ev) ->
       if ev?.preventDefault? then ev.preventDefault()
-      else ev.returnValue = false
+      else ev?.returnValue = false
 
       url = getEl("input").value
 
@@ -192,9 +192,10 @@ define [
 
     submitReport: (ev) ->
       if ev?.preventDefault? then ev.preventDefault()
-      else ev.returnValue = false
+      else ev?.returnValue = false
 
-      categoryId = parseInt getEl("select :selected")?.value, 10
+      select = getEl "select"
+      categoryId = parseInt select?.options[select?.selectedIndex]?.value, 10
 
       return @showWarning "Please choose a category" if isNaN categoryId
 

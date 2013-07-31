@@ -21,23 +21,21 @@ createEl = (html) ->
   return container.firstChild
 
 define [
-  "addevent"
-  "removeevent"
-  "purge"
+  "listener"
   "sethtml"
   "event"
   "templates"
-], (addEvent, removeEvent, purge, setHtml, Event, templates) ->
+], (listener, setHtml, Event, templates) ->
   onTransitionEnd = (el, cb) ->
     unless transitionEnd?
       cb() if cb?
       return
 
     transitionEndFn = (ev) ->
-      removeEvent el, transitionEnd, transitionEndFn
+      listener.remove el, transitionEnd, transitionEndFn
       cb() if cb?
 
-    addEvent el, transitionEnd, transitionEndFn
+    listener.add el, transitionEnd, transitionEndFn
 
   addClass = (el, className, cb) ->
     unless hasClass el, className
@@ -102,7 +100,7 @@ define [
                            "\"></div>"
       document.body.appendChild @backdrop
 
-      addEvent @backdrop, "click", @hide.bind(this) if @ctx.close
+      listener.add @backdrop, "click", @hide.bind(this) if @ctx.close
 
       @backdrop.offsetWidth  ## force reflow
       @_addClass @backdrop, "in", @trigger.bind(this, "backdrop shown")
@@ -139,7 +137,7 @@ define [
 
       if @ctx.close
         @onKeyUp = (ev) -> that.hide() if ev.which is 27  ## escape
-        addEvent document.body, "keyup", @onKeyUp
+        listener.add document.body, "keyup", @onKeyUp
 
       document.body.appendChild @el
 
@@ -152,12 +150,12 @@ define [
       @el.offsetWidth  ## force reflow
 
       if @ctx.btn
-        btn = @el.querySelector("btn btn-primary")
-        addEvent btn, "click", @hide.bind(this)
+        btn = @el.querySelector ".btn.btn-primary"
+        listener.add btn, "click", @hide.bind(this)
 
       if @ctx.close
-        xBtn = @el.querySelector("close")
-        addEvent xBtn, "click", @hide.bind(this)
+        xBtn = @el.querySelector ".close"
+        listener.add xBtn, "click", @hide.bind(this)
 
       @_addClass @el, "in", @trigger.bind(this, "modal shown")
 
@@ -170,7 +168,6 @@ define [
       setTimeout @_setStatus.bind(this, "hidden"), 1
 
     _onModalHidden: ->
-      purge @el
       document.body.removeChild @el
       @el.style.display = "none"
       @_hideBackdrop()
@@ -187,8 +184,7 @@ define [
       return this
 
     _removeBackdrop: ->
-      removeEvent document.body, "keyup", @onKeyUp, true if @onKeyUp?
-      purge @backdrop
+      listener.remove document.body, "keyup", @onKeyUp, true if @onKeyUp?
       document.body.removeChild @backdrop if @backdrop?
       delete Modal.current if Modal.current is this
       delete @backdrop
