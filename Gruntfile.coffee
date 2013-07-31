@@ -3,7 +3,11 @@ module.exports = (grunt) ->
     pkg: grunt.file.readJSON "package.json"
 
     clean:
-      js: [ "public/js/*", "!public/js/vendor" ]
+      js: [
+        "public/js/*"
+        "!public/js/sizzle.js"
+        "!public/js/vendor"
+      ]
       css: [ "public/css/*", "!public/css/vendor" ]
 
     coffee:
@@ -79,12 +83,16 @@ module.exports = (grunt) ->
             "poly/function"
             "poly/json"
             "poly/array"
+            "poly/string"
+            "poly/date"
             "test-a-site"
           ]
           insertRequire: [
             "poly/function"
             "poly/json"
             "poly/array"
+            "poly/string"
+            "poly/date"
             "test-a-site"
           ]
           out: "public/js/test-a-site.min.js"

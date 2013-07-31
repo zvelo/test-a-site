@@ -2,11 +2,12 @@
 
 define [
   "domReady"
+  "addevent"
   "sizzle"
   "zvelonet"
   "modal"
   "templates"
-], (domReady, Sizzle, ZveloNET, Modal, templates) ->
+], (domReady, addEvent, Sizzle, ZveloNET, Modal, templates) ->
   getEl = (selector) -> Sizzle("#zvelonet #{selector or ""}")[0]
 
   class TestASite
@@ -28,7 +29,7 @@ define [
       domReady @onDomReady.bind(this)
 
     onDomReady: ->
-      document.addEventListener "keydown", @onKeyDown.bind(this)
+      addEvent document, "keydown", @onKeyDown.bind(this)
       window.onpopstate = @onPopState.bind(this)
 
       @showLoadingModal()
@@ -87,7 +88,7 @@ define [
       ## setup listeners
 
       lookup = getEl(".btn.lookup")
-      lookup?.addEventListener "click", @show.bind(this, "lookup")
+      addEvent lookup, "click", @show.bind(this, "lookup")
 
       switch tpl
         when "lookup" then @showLookup()
@@ -103,7 +104,7 @@ define [
     showResult: (lookup) ->
       @setPath "result", @data.url
       lookup.focus()
-      getEl(".btn.report")?.addEventListener "click",
+      addEvent getEl(".btn.report"), "click",
         @show.bind(this, "report",
           url: @data.url
           categories: @categories)
@@ -112,11 +113,11 @@ define [
       @setPath "lookup"
 
       getEl("input").focus()
-      getEl("form").addEventListener "submit", @submitLookup.bind(this)
+      addEvent getEl("form"), "submit", @submitLookup.bind(this)
 
     showReport: ->
       @setPath "report"
-      getEl("form").addEventListener "submit", @submitReport.bind(this)
+      addEvent getEl("form"), "submit", @submitReport.bind(this)
       getEl("select").focus()
 
     showErrorModal: ->

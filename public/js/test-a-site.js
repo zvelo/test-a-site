@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  define(["domReady", "sizzle", "zvelonet", "modal", "templates"], function(domReady, Sizzle, ZveloNET, Modal, templates) {
+  define(["domReady", "addevent", "sizzle", "zvelonet", "modal", "templates"], function(domReady, addEvent, Sizzle, ZveloNET, Modal, templates) {
     var TestASite, getEl;
     getEl = function(selector) {
       return Sizzle("#zvelonet " + (selector || ""))[0];
@@ -26,7 +26,7 @@
       }
 
       TestASite.prototype.onDomReady = function() {
-        document.addEventListener("keydown", this.onKeyDown.bind(this));
+        addEvent(document, "keydown", this.onKeyDown.bind(this));
         window.onpopstate = this.onPopState.bind(this);
         this.showLoadingModal();
         return this.zn.ready.then(this.znReady.bind(this)).then(this.route.bind(this)).otherwise(this.showErrorModal.bind(this));
@@ -96,9 +96,7 @@
         this.data.page = tpl;
         getEl().innerHTML = templates[tpl](this.data);
         lookup = getEl(".btn.lookup");
-        if (lookup != null) {
-          lookup.addEventListener("click", this.show.bind(this, "lookup"));
-        }
+        addEvent(lookup, "click", this.show.bind(this, "lookup"));
         switch (tpl) {
           case "lookup":
             return this.showLookup();
@@ -118,24 +116,23 @@
       };
 
       TestASite.prototype.showResult = function(lookup) {
-        var _ref;
         this.setPath("result", this.data.url);
         lookup.focus();
-        return (_ref = getEl(".btn.report")) != null ? _ref.addEventListener("click", this.show.bind(this, "report", {
+        return addEvent(getEl(".btn.report"), "click", this.show.bind(this, "report", {
           url: this.data.url,
           categories: this.categories
-        })) : void 0;
+        }));
       };
 
       TestASite.prototype.showLookup = function() {
         this.setPath("lookup");
         getEl("input").focus();
-        return getEl("form").addEventListener("submit", this.submitLookup.bind(this));
+        return addEvent(getEl("form"), "submit", this.submitLookup.bind(this));
       };
 
       TestASite.prototype.showReport = function() {
         this.setPath("report");
-        getEl("form").addEventListener("submit", this.submitReport.bind(this));
+        addEvent(getEl("form"), "submit", this.submitReport.bind(this));
         return getEl("select").focus();
       };
 
