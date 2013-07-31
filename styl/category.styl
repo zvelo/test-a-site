@@ -1,6 +1,6 @@
-$line-height = 1.3rem
-$vertical-padding = 0.5rem
-$category-height = $line-height + 2 * $vertical-padding
+$line-height      = 1.3 * $baseFontSize
+$vertical-padding = 0.5 * $baseFontSize
+$category-height  = $line-height + 2 * $vertical-padding
 
 .category:before
   position absolute
@@ -31,10 +31,10 @@ $category-height = $line-height + 2 * $vertical-padding
   display inline-block
   color white  // TODO(jrubin)
   background $fontColor
-  padding $vertical-padding 2rem $vertical-padding 2rem
+  padding $vertical-padding 2 * $baseFontSize $vertical-padding 2 * $baseFontSize
   line-height $line-height
   font-weight 200
   text-transform uppercase
   overflow ellipsis
   cursor default
-  margin-bottom 1rem
+  margin-bottom $baseFontSize

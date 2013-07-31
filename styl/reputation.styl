@@ -1,6 +1,6 @@
 .reputation-img-container
   position relative
-  max-width 10rem
+  max-width 10 * $baseFontSize
 
 
 .reputation-img-container,
@@ -31,13 +31,13 @@ p
   background $light
   border-radius 6px
   overflow ellipsis
-  padding 0.5rem
-  margin-top 0.5rem
+  padding 0.5 * $baseFontSize
+  margin-top 0.5 * $baseFontSize
   margin-bottom 0
   // font-weight 200
   text-shadow 0 -1px 0 rgba(0,0,0,0.25)
   cursor default
-  font-size 1rem
+  font-size $baseFontSize
 
 &.reputation700 .img
   background-image url("../img/zvelo-no-known-risk-a.png")
