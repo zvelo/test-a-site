@@ -1,5 +1,5 @@
 addEvent = (obj, type, fn) ->
-  return unless typeof obj is "object"
+  return unless obj? and typeof obj is "object"
 
   if "addEventListener" of obj
     obj.addEventListener type, fn, false

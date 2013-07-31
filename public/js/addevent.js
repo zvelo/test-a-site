@@ -2,7 +2,7 @@
   var addEvent;
 
   addEvent = function(obj, type, fn) {
-    if (typeof obj !== "object") {
+    if (!((obj != null) && typeof obj === "object")) {
       return;
     }
     if ("addEventListener" in obj) {

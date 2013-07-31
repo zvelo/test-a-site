@@ -23,9 +23,11 @@ createEl = (html) ->
 define [
   "addevent"
   "removeevent"
+  "purge"
+  "sethtml"
   "event"
   "templates"
-], (addEvent, removeEvent, Event, templates) ->
+], (addEvent, removeEvent, purge, setHtml, Event, templates) ->
   onTransitionEnd = (el, cb) ->
     unless transitionEnd?
       cb() if cb?
@@ -116,11 +118,11 @@ define [
       return true
 
     setHeader: (value) ->
-      @el.getElementsByTagName('h3')[0].innerHTML = value
+      setHtml @el.querySelector("h3"), value
       return this
 
     setBody: (value) ->
-      @el.getElementsByTagName('p')[0].innerHTML = value
+      setHtml @el.querySelector("p"), value
       return this
 
     show: ->
@@ -150,11 +152,11 @@ define [
       @el.offsetWidth  ## force reflow
 
       if @ctx.btn
-        btn = @el.getElementsByClassName("btn btn-primary")[0]
+        btn = @el.querySelector("btn btn-primary")
         addEvent btn, "click", @hide.bind(this)
 
       if @ctx.close
-        xBtn = @el.getElementsByClassName("close")[0]
+        xBtn = @el.querySelector("close")
         addEvent xBtn, "click", @hide.bind(this)
 
       @_addClass @el, "in", @trigger.bind(this, "modal shown")
@@ -168,6 +170,7 @@ define [
       setTimeout @_setStatus.bind(this, "hidden"), 1
 
     _onModalHidden: ->
+      purge @el
       document.body.removeChild @el
       @el.style.display = "none"
       @_hideBackdrop()
@@ -185,6 +188,7 @@ define [
 
     _removeBackdrop: ->
       removeEvent document.body, "keyup", @onKeyUp, true if @onKeyUp?
+      purge @backdrop
       document.body.removeChild @backdrop if @backdrop?
       delete Modal.current if Modal.current is this
       delete @backdrop

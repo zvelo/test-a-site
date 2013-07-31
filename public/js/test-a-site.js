@@ -1,9 +1,9 @@
 (function() {
   "use strict";
-  define(["domReady", "addevent", "sizzle", "zvelonet", "modal", "templates"], function(domReady, addEvent, Sizzle, ZveloNET, Modal, templates) {
+  define(["domReady", "addevent", "sethtml", "zvelonet", "modal", "templates"], function(domReady, addEvent, setHtml, ZveloNET, Modal, templates) {
     var TestASite, getEl;
     getEl = function(selector) {
-      return Sizzle("#zvelonet " + (selector || ""))[0];
+      return document.querySelector("#zvelonet " + (selector || ""));
     };
     TestASite = (function() {
       function TestASite() {
@@ -94,7 +94,7 @@
           this.data = {};
         }
         this.data.page = tpl;
-        getEl().innerHTML = templates[tpl](this.data);
+        setHtml(getEl(), templates[tpl](this.data));
         lookup = getEl(".btn.lookup");
         addEvent(lookup, "click", this.show.bind(this, "lookup"));
         switch (tpl) {
@@ -117,7 +117,6 @@
 
       TestASite.prototype.showResult = function(lookup) {
         this.setPath("result", this.data.url);
-        lookup.focus();
         return addEvent(getEl(".btn.report"), "click", this.show.bind(this, "report", {
           url: this.data.url,
           categories: this.categories
@@ -126,14 +125,12 @@
 
       TestASite.prototype.showLookup = function() {
         this.setPath("lookup");
-        getEl("input").focus();
         return addEvent(getEl("form"), "submit", this.submitLookup.bind(this));
       };
 
       TestASite.prototype.showReport = function() {
         this.setPath("report");
-        addEvent(getEl("form"), "submit", this.submitReport.bind(this));
-        return getEl("select").focus();
+        return addEvent(getEl("form"), "submit", this.submitReport.bind(this));
       };
 
       TestASite.prototype.showErrorModal = function() {
@@ -209,8 +206,10 @@
 
       TestASite.prototype.submitLookup = function(ev) {
         var url;
-        if (ev != null) {
+        if ((ev != null ? ev.preventDefault : void 0) != null) {
           ev.preventDefault();
+        } else {
+          ev.returnValue = false;
         }
         url = getEl("input").value;
         if (!(url != null ? url.length : void 0)) {
@@ -227,8 +226,10 @@
 
       TestASite.prototype.submitReport = function(ev) {
         var categoryId, url, _ref;
-        if (ev != null) {
+        if ((ev != null ? ev.preventDefault : void 0) != null) {
           ev.preventDefault();
+        } else {
+          ev.returnValue = false;
         }
         categoryId = parseInt((_ref = getEl("select :selected")) != null ? _ref.value : void 0, 10);
         if (isNaN(categoryId)) {

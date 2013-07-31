@@ -5,7 +5,6 @@ module.exports = (grunt) ->
     clean:
       js: [
         "public/js/*"
-        "!public/js/sizzle.js"
         "!public/js/vendor"
       ]
       css: [ "public/css/*", "!public/css/vendor" ]

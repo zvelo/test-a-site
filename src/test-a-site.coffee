@@ -3,12 +3,12 @@
 define [
   "domReady"
   "addevent"
-  "sizzle"
+  "sethtml"
   "zvelonet"
   "modal"
   "templates"
-], (domReady, addEvent, Sizzle, ZveloNET, Modal, templates) ->
-  getEl = (selector) -> Sizzle("#zvelonet #{selector or ""}")[0]
+], (domReady, addEvent, setHtml, ZveloNET, Modal, templates) ->
+  getEl = (selector) -> document.querySelector("#zvelonet #{selector or ""}")
 
   class TestASite
     constructor: ->
@@ -83,7 +83,7 @@ define [
       @data = data or {}
       @data = {} unless @data?.url? or path?
       @data.page = tpl
-      getEl().innerHTML = templates[tpl] @data
+      setHtml getEl(), templates[tpl](@data)
 
       ## setup listeners
 
@@ -103,7 +103,6 @@ define [
 
     showResult: (lookup) ->
       @setPath "result", @data.url
-      lookup.focus()
       addEvent getEl(".btn.report"), "click",
         @show.bind(this, "report",
           url: @data.url
@@ -111,14 +110,11 @@ define [
 
     showLookup: ->
       @setPath "lookup"
-
-      getEl("input").focus()
       addEvent getEl("form"), "submit", @submitLookup.bind(this)
 
     showReport: ->
       @setPath "report"
       addEvent getEl("form"), "submit", @submitReport.bind(this)
-      getEl("select").focus()
 
     showErrorModal: ->
       for arg in arguments
@@ -177,7 +173,9 @@ define [
       @submitLookup()
 
     submitLookup: (ev) ->
-      ev?.preventDefault()
+      if ev?.preventDefault? then ev.preventDefault()
+      else ev.returnValue = false
+
       url = getEl("input").value
 
       return unless url?.length
@@ -193,7 +191,9 @@ define [
       .otherwise(@showErrorModal.bind this, @show.bind(this, "lookup"))
 
     submitReport: (ev) ->
-      ev?.preventDefault()
+      if ev?.preventDefault? then ev.preventDefault()
+      else ev.returnValue = false
+
       categoryId = parseInt getEl("select :selected")?.value, 10
 
       return @showWarning "Please choose a category" if isNaN categoryId

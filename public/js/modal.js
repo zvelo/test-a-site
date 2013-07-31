@@ -31,7 +31,7 @@
     return container.firstChild;
   };
 
-  define(["addevent", "removeevent", "event", "templates"], function(addEvent, removeEvent, Event, templates) {
+  define(["addevent", "removeevent", "purge", "sethtml", "event", "templates"], function(addEvent, removeEvent, purge, setHtml, Event, templates) {
     var Modal, addClass, onTransitionEnd, removeClass;
     onTransitionEnd = function(el, cb) {
       var transitionEndFn;
@@ -159,12 +159,12 @@
       };
 
       Modal.prototype.setHeader = function(value) {
-        this.el.getElementsByTagName('h3')[0].innerHTML = value;
+        setHtml(this.el.querySelector("h3"), value);
         return this;
       };
 
       Modal.prototype.setBody = function(value) {
-        this.el.getElementsByTagName('p')[0].innerHTML = value;
+        setHtml(this.el.querySelector("p"), value);
         return this;
       };
 
@@ -207,11 +207,11 @@
         this.el.style.display = "block";
         this.el.offsetWidth;
         if (this.ctx.btn) {
-          btn = this.el.getElementsByClassName("btn btn-primary")[0];
+          btn = this.el.querySelector("btn btn-primary");
           addEvent(btn, "click", this.hide.bind(this));
         }
         if (this.ctx.close) {
-          xBtn = this.el.getElementsByClassName("close")[0];
+          xBtn = this.el.querySelector("close");
           addEvent(xBtn, "click", this.hide.bind(this));
         }
         return this._addClass(this.el, "in", this.trigger.bind(this, "modal shown"));
@@ -227,6 +227,7 @@
       };
 
       Modal.prototype._onModalHidden = function() {
+        purge(this.el);
         document.body.removeChild(this.el);
         this.el.style.display = "none";
         return this._hideBackdrop();
@@ -248,6 +249,7 @@
         if (this.onKeyUp != null) {
           removeEvent(document.body, "keyup", this.onKeyUp, true);
         }
+        purge(this.backdrop);
         if (this.backdrop != null) {
           document.body.removeChild(this.backdrop);
         }
