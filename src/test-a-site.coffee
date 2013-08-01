@@ -29,6 +29,9 @@ define [
       domReady @onDomReady.bind(this)
 
     onDomReady: ->
+      docElement = document.documentElement
+      docElement.className = docElement.className.replace(/\bno-js\b/,'') + ' js'
+
       listener.add document, "keydown", @onKeyDown.bind(this)
       window.onpopstate = @onPopState.bind(this)
 

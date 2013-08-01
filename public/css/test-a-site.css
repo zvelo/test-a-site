@@ -25,9 +25,13 @@
 }#zvelonet .reputation .img{position:absolute;top:0;bottom:0;left:0;right:0;-webkit-background-size:100% auto;-moz-background-size:100% auto;background-size:100% auto;background-position:top right;background-repeat:no-repeat}
 #zvelonet .reputation .aspect{padding-top:98.34368530020703%}
 #zvelonet .reputation p{width:85%;text-align:center;border:1px solid #d5d5d5;background:#e5e5e5;-webkit-border-radius:6px;border-radius:6px;white-space:nowrap;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis;padding:8px;margin-top:8px;margin-bottom:0;text-shadow:0 -1px 0 rgba(0,0,0,0.25);cursor:default;font-size:16px}
-#zvelonet .reputation.reputation700 .img{background-image:url("../img/zvelo-no-known-risk-a.png")}
-#zvelonet .reputation.reputation701 .img{background-image:url("../img/zvelo-possible-risk-a.png")}
-#zvelonet .reputation.reputation702 .img{background-image:url("../img/zvelo-medium-risk-a.png")}
-#zvelonet .reputation.reputation703 .img{background-image:url("../img/zvelo-high-risk-a.png")}
+#zvelonet .reputation.reputation700 .img{background-image:url("../img/zvelo-no-known-risk-a.png");}
+.lt-ie9 #zvelonet .reputation.reputation700 .img{-ms-filter:'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../img/zvelo-no-known-risk-a.png", sizingMethod="scale")';background-image:none}
+#zvelonet .reputation.reputation701 .img{background-image:url("../img/zvelo-possible-risk-a.png");}
+.lt-ie9 #zvelonet .reputation.reputation701 .img{-ms-filter:'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../img/zvelo-possible-risk-a.png", sizingMethod="scale")';background-image:none}
+#zvelonet .reputation.reputation702 .img{background-image:url("../img/zvelo-medium-risk-a.png");}
+.lt-ie9 #zvelonet .reputation.reputation702 .img{-ms-filter:'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../img/zvelo-medium-risk-a.png", sizingMethod="scale")';background-image:none}
+#zvelonet .reputation.reputation703 .img{background-image:url("../img/zvelo-high-risk-a.png");}
+.lt-ie9 #zvelonet .reputation.reputation703 .img{-ms-filter:'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../img/zvelo-high-risk-a.png", sizingMethod="scale")';background-image:none}
 #zvelonet .url{white-space:nowrap;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis;margin-bottom:16px;cursor:default}
 #zvelonet select{background:transparent;padding:8px;-webkit-appearance:none;-moz-appearance:none;appearance:none;-webkit-border-radius:0;border-radius:0;height:auto;width:auto;font-size:19.2px}

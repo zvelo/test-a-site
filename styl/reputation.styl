@@ -39,14 +39,21 @@ p
   cursor default
   font-size $baseFontSize
 
+background-image(bgurl)
+  background-image url(bgurl)
+
+  .lt-ie9 &
+    -ms-filter 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="' + bgurl + '", sizingMethod="scale")'
+    background-image none
+
 &.reputation700 .img
-  background-image url("../img/zvelo-no-known-risk-a.png")
+  background-image "../img/zvelo-no-known-risk-a.png"
 
 &.reputation701 .img
-  background-image url("../img/zvelo-possible-risk-a.png")
+  background-image "../img/zvelo-possible-risk-a.png"
 
 &.reputation702 .img
-  background-image url("../img/zvelo-medium-risk-a.png")
+  background-image "../img/zvelo-medium-risk-a.png"
 
 &.reputation703 .img
-  background-image url("../img/zvelo-high-risk-a.png")
+  background-image "../img/zvelo-high-risk-a.png"
