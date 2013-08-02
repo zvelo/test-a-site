@@ -17,11 +17,13 @@ div.lookup
     color $fontColor
     cursor default
 
-  span:last-child
+  span.remaining
     width 100%
 
+  $placeholderColor = $medium
+
   input
-    placeholder(color $medium,)
+    placeholder(color $placeholderColor,)
     height 100%
     width 100%
     color $fontColor
@@ -31,3 +33,6 @@ div.lookup
     // border-bottom 1px solid $border
     // border-right 1px solid $border
     // border-radius 0
+
+    &.placeholdersjs
+      color $placeholderColor

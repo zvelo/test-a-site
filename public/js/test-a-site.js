@@ -26,9 +26,9 @@
       }
 
       TestASite.prototype.onDomReady = function() {
-        var docElement;
-        docElement = document.documentElement;
-        docElement.className = docElement.className.replace(/\bno-js\b/, '') + ' js';
+        var docEl;
+        docEl = document.documentElement;
+        docEl.className = docEl.className.replace(/\bno-js\b/, '') + ' js';
         listener.add(document, "keydown", this.onKeyDown.bind(this));
         window.onpopstate = this.onPopState.bind(this);
         this.showLoadingModal();

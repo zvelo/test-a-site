@@ -7,7 +7,10 @@ module.exports = (grunt) ->
         "public/js/*"
         "!public/js/vendor"
       ]
-      css: [ "public/css/*", "!public/css/vendor" ]
+      css: [
+        "public/css/*"
+        "!public/css/vendor"
+      ]
 
     coffee:
       options:
@@ -84,14 +87,10 @@ module.exports = (grunt) ->
             "poly/array"
             "poly/string"
             "poly/date"
+            "placeholders"
             "test-a-site"
           ]
           insertRequire: [
-            "poly/function"
-            "poly/json"
-            "poly/array"
-            "poly/string"
-            "poly/date"
             "test-a-site"
           ]
           out: "public/js/test-a-site.min.js"

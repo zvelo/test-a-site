@@ -8,7 +8,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<form>\n  <div class=\"lookup inner-container\">\n    <span>\n      <label for=\"zvelo-url-input\">http://</label>\n    </span>\n    <span>\n      <input type=\"text\"\n             id=\"zvelo-url-input\"\n             title=\"Enter a URL to lookup its categorization\"\n             placeholder=\"zvelo.com (just start typing&hellip;)\"\n             autocomplete=\"off\"\n             spellcheck=\"false\">\n    </span>\n  </div>\n  <div class=\"controls\">\n    <button type=\"submit\" class=\"btn btn-large btn-primary\">Lookup</button>\n  </div>\n</form>\n";
+  return "<form>\n  <div class=\"lookup inner-container\">\n    <span>\n      <label for=\"zvelo-url-input\">http://</label>\n    </span>\n    <span class=\"remaining\">\n      <input type=\"text\"\n             id=\"zvelo-url-input\"\n             title=\"Enter a URL to lookup its categorization\"\n             placeholder=\"zvelo.com (just start typing&hellip;)\"\n             autocomplete=\"off\"\n             spellcheck=\"false\">\n    </span>\n  </div>\n  <div class=\"controls\">\n    <button type=\"submit\" class=\"btn btn-large btn-primary\">Lookup</button>\n  </div>\n</form>\n";
   });
 
 this["JST"]["modal"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {

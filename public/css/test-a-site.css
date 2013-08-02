@@ -10,12 +10,13 @@
 #zvelonet div.lookup > *{display:table-cell}
 #zvelonet div.lookup *{margin:0;padding:0;vertical-align:baseline}
 #zvelonet div.lookup label{color:#333;cursor:default}
-#zvelonet div.lookup span:last-child{width:100%}
-#zvelonet div.lookup input{height:100%;width:100%;color:#333;-webkit-box-shadow:none;box-shadow:none;border:0;background-color:transparent}
+#zvelonet div.lookup span.remaining{width:100%}
+#zvelonet div.lookup input{height:100%;width:100%;color:#333;-webkit-box-shadow:none;box-shadow:none;border:0;background-color:transparent;}
 #zvelonet div.lookup input::-webkit-input-placeholder{color:#d5d5d5;}
 #zvelonet div.lookup input:-moz-placeholder{color:#d5d5d5;}
 #zvelonet div.lookup input::-moz-placeholder{color:#d5d5d5;}
 #zvelonet div.lookup input:-ms-input-placeholder{color:#d5d5d5;}
+#zvelonet div.lookup input.placeholdersjs{color:#d5d5d5}
 #zvelonet .category:before{position:absolute;top:0;left:0;content:" ";width:0;height:0;border-top:18.4px solid transparent;border-bottom:18.4px solid transparent;border-left:18.4px solid #fff}
 #zvelonet .category:after{position:absolute;top:0;right:0;content:" ";width:0;height:0;border-top:18.4px solid #fff;border-bottom:18.4px solid #fff;border-left:18.4px solid transparent}
 #zvelonet .category{position:relative;max-width:100%;white-space:nowrap;display:inline-block;color:#fff;background:#333;padding:8px 32px 8px 32px;line-height:20.8px;font-weight:200;text-transform:uppercase;white-space:nowrap;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis;cursor:default;margin-bottom:16px}

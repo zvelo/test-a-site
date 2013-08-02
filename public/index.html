@@ -1,15 +1,35 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" data-placeholder-focus="false">     <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"        data-placeholder-focus="false">     <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"               data-placeholder-focus="false">     <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"                      data-placeholder-focus="false"> <!--<![endif]-->
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/demo.css">
+    <link rel="stylesheet" type="text/css" href="/css/test-a-site.css">
     <title>TEST-A-SITE - zvelo.com</title>
   </head>
   <body>
+    <!--[if lt IE 8]>
+    <div class="alert alert-error">
+      You are using an <strong>unsupported</strong> browser.<br>
+      Please <a href="http://browsehappy.com/" target="_blank">upgrade your browser</a> to improve your experience.
+    </div>
+    <![endif]-->
+
+    <!--[if IE 8]>
+    <div class="alert">
+      You are using an <strong>outdated</strong> browser.<br>
+      Though this browser is supported, you will likely experience very long processing times.<br>
+      Please <a href="http://browsehappy.com/" target="_blank">upgrade your browser</a> to improve your experience.
+    </div>
+    <![endif]-->
+
+    <!--[if gt IE 7]><!-->
     <div id="zvelonet" class="container-fluid"></div>
+    <!--<![endif]-->
+
     <script>
 curl = {
     baseUrl: "js",
@@ -39,20 +59,16 @@ curl = {
         "poly/json",
         "poly/array",
         "poly/string",
-        "poly/date"
+        "poly/date",
+        "placeholders"
     ]
 };
     </script>
     <script src="/js/vendor/curl.js"></script>
     <script>
-this.zvelo = {};
-curl([
-  "css!/css/demo.css",
-  "css!/css/test-a-site.css",
-  "test-a-site"
-]).then(undefined, function(err) {
-    console.error(err.stack);
-  });
+curl(["test-a-site"]).then(undefined, function(err) {
+  console.error(err.stack);
+});
     </script>
   </body>
 </html>
