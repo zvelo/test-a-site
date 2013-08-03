@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  define(["listener"], function(listener) {
+  define(["element"], function($) {
     var ATTR_ACTIVE, ATTR_CURRENT_VAL, ATTR_EVENTS_BOUND, ATTR_FORM_HANDLED, ATTR_INPUT_TYPE, ATTR_OPTION_FOCUS, ATTR_OPTION_LIVE, Placeholders, addPlaceholder, badKeys, changeType, classNameRegExp, disablePlaceholders, enablePlaceholders, handleElem, head, hideOnInput, hidePlaceholder, inArray, keydownVal, liveUpdates, makeBlurHandler, makeClickHandler, makeFocusHandler, makeKeydownHandler, makeKeyupHandler, makeSubmitHandler, moveCaret, nativeSupport, newElement, noop, placeholderClassName, placeholderStyleColor, root, setup, setupPlaceholder, showPlaceholder, test, validTypes;
     moveCaret = function(elem, index) {
       var range;
@@ -168,23 +168,20 @@
     };
     newElement = function(elem, placeholder) {
       var form;
-      if (elem.form) {
-        form = elem.form;
-        if (!form.getAttribute(ATTR_FORM_HANDLED)) {
-          listener.add(form, "submit", makeSubmitHandler(form));
-          form.setAttribute(ATTR_FORM_HANDLED, "true");
+      elem = $(elem);
+      if (elem.el.form) {
+        form = $(elem.el.form);
+        if (!form.attr(ATTR_FORM_HANDLED)) {
+          form.on("submit", makeSubmitHandler(form.el)).attr(ATTR_FORM_HANDLED, "true");
         }
       }
-      listener.add(elem, "focus", makeFocusHandler(elem));
-      listener.add(elem, "blur", makeBlurHandler(elem));
+      elem.on("focus", makeFocusHandler(elem.el)).on("blur", makeBlurHandler(elem.el));
       if (hideOnInput) {
-        listener.add(elem, "keydown", makeKeydownHandler(elem));
-        listener.add(elem, "keyup", makeKeyupHandler(elem));
-        listener.add(elem, "click", makeClickHandler(elem));
+        elem.on("keydown", makeKeydownHandler(elem.el)).on("keyup", makeKeyupHandler(elem.el)).on("click", makeClickHandler(elem.el));
       }
-      elem.setAttribute(ATTR_EVENTS_BOUND, "true");
-      elem.setAttribute(ATTR_CURRENT_VAL, placeholder);
-      return showPlaceholder(elem);
+      elem.attr(ATTR_EVENTS_BOUND, "true");
+      elem.attr(ATTR_CURRENT_VAL, placeholder);
+      return showPlaceholder(elem.el);
     };
     setupPlaceholder = function(elem) {
       var placeholder;

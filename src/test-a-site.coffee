@@ -1,14 +1,14 @@
 "use strict"
 
 define [
+  "templates"
   "domReady"
-  "listener"
-  "sethtml"
   "zvelonet"
   "modal"
-  "templates"
-], (domReady, listener, setHtml, ZveloNET, Modal, templates) ->
-  getEl = (selector) -> document.querySelector("#zvelonet #{selector or ""}")
+  "element"
+], (templates, domReady, ZveloNET, Modal, $) ->
+  getEl = (selector) ->
+    return $(document).find("#zvelonet #{selector or ""}")
 
   class TestASite
     constructor: ->
@@ -32,7 +32,8 @@ define [
       docEl = document.documentElement
       docEl.className = docEl.className.replace(/\bno-js\b/,'') + ' js'
 
-      listener.add document, "keydown", @onKeyDown.bind(this)
+      $(document).on("keydown", @onKeyDown.bind this)
+
       window.onpopstate = @onPopState.bind(this)
 
       @showLoadingModal()
@@ -48,8 +49,8 @@ define [
       input     = getEl "input"
       lookupBtn = getEl "button"
 
-      return unless input? and lookupBtn?
-      return if document.activeElement is input
+      return unless input.el? and lookupBtn.el?
+      return if document.activeElement is input.el
 
       return if ev.altGraphKey or
                 ev.metaKey     or
@@ -86,12 +87,12 @@ define [
       @data = data or {}
       @data = {} unless @data?.url? or path?
       @data.page = tpl
-      setHtml getEl(), templates[tpl](@data)
+      getEl().html templates[tpl](@data)
 
       ## setup listeners
 
       lookup = getEl(".btn.lookup")
-      listener.add lookup, "click", @show.bind(this, "lookup")
+        .on("click", @show.bind(this, "lookup"))
 
       switch tpl
         when "lookup" then @showLookup()
@@ -101,23 +102,25 @@ define [
           return @showResult lookup if @data?.url?
 
           if path? ## loading from a url path
-            @show "lookup", lookup
+            @show "lookup", lookup.el
             @doLookup path.arg if path.arg?
 
     showResult: (lookup) ->
       @setPath "result", @data.url
-      listener.add getEl(".btn.report"), "click",
-        @show.bind(this, "report",
+      getEl(".btn.report")
+        .on("click", @show.bind(this, "report",
           url: @data.url
-          categories: @categories)
+          categories: @categories))
 
     showLookup: ->
       @setPath "lookup"
-      listener.add getEl("form"), "submit", @submitLookup.bind(this)
+      getEl("form")
+        .on("submit", @submitLookup.bind this)
 
     showReport: ->
       @setPath "report"
-      listener.add getEl("form"), "submit", @submitReport.bind(this)
+      getEl("form")
+        .on("submit", @submitReport.bind this)
 
     showErrorModal: ->
       for arg in arguments
@@ -171,15 +174,15 @@ define [
 
     doLookup: (url) ->
       input = getEl "input"
-      return unless input?
-      input.value = url unless input.value.length
+      return unless input.el?
+      input.value(url) unless input.value().length
       @submitLookup()
 
     submitLookup: (ev) ->
       if ev?.preventDefault? then ev.preventDefault()
       else ev?.returnValue = false
 
-      url = getEl("input").value
+      url = getEl("input").value()
 
       return unless url?.length
 
@@ -198,11 +201,11 @@ define [
       else ev?.returnValue = false
 
       select = getEl "select"
-      categoryId = parseInt select?.options[select?.selectedIndex]?.value, 10
+      categoryId = parseInt select.options(select.selectedIndex())?.value, 10
 
       return @showWarning "Please choose a category" if isNaN categoryId
 
-      url = getEl(".url").textContent
+      url = getEl(".url").text()
 
       document.activeElement.blur()
 

@@ -1,9 +1,9 @@
 (function() {
   "use strict";
-  define(["domReady", "listener", "sethtml", "zvelonet", "modal", "templates"], function(domReady, listener, setHtml, ZveloNET, Modal, templates) {
+  define(["templates", "domReady", "zvelonet", "modal", "element"], function(templates, domReady, ZveloNET, Modal, $) {
     var TestASite, getEl;
     getEl = function(selector) {
-      return document.querySelector("#zvelonet " + (selector || ""));
+      return $(document).find("#zvelonet " + (selector || ""));
     };
     TestASite = (function() {
       function TestASite() {
@@ -29,7 +29,7 @@
         var docEl;
         docEl = document.documentElement;
         docEl.className = docEl.className.replace(/\bno-js\b/, '') + ' js';
-        listener.add(document, "keydown", this.onKeyDown.bind(this));
+        $(document).on("keydown", this.onKeyDown.bind(this));
         window.onpopstate = this.onPopState.bind(this);
         this.showLoadingModal();
         return this.zn.ready.then(this.znReady.bind(this)).then(this.route.bind(this)).otherwise(this.showErrorModal.bind(this));
@@ -42,10 +42,10 @@
         }
         input = getEl("input");
         lookupBtn = getEl("button");
-        if (!((input != null) && (lookupBtn != null))) {
+        if (!((input.el != null) && (lookupBtn.el != null))) {
           return;
         }
-        if (document.activeElement === input) {
+        if (document.activeElement === input.el) {
           return;
         }
         if (ev.altGraphKey || ev.metaKey || ev.altKey || ev.shiftKey || ev.ctrlKey) {
@@ -97,9 +97,8 @@
           this.data = {};
         }
         this.data.page = tpl;
-        setHtml(getEl(), templates[tpl](this.data));
-        lookup = getEl(".btn.lookup");
-        listener.add(lookup, "click", this.show.bind(this, "lookup"));
+        getEl().html(templates[tpl](this.data));
+        lookup = getEl(".btn.lookup").on("click", this.show.bind(this, "lookup"));
         switch (tpl) {
           case "lookup":
             return this.showLookup();
@@ -110,7 +109,7 @@
               return this.showResult(lookup);
             }
             if (path != null) {
-              this.show("lookup", lookup);
+              this.show("lookup", lookup.el);
               if (path.arg != null) {
                 return this.doLookup(path.arg);
               }
@@ -120,7 +119,7 @@
 
       TestASite.prototype.showResult = function(lookup) {
         this.setPath("result", this.data.url);
-        return listener.add(getEl(".btn.report"), "click", this.show.bind(this, "report", {
+        return getEl(".btn.report").on("click", this.show.bind(this, "report", {
           url: this.data.url,
           categories: this.categories
         }));
@@ -128,12 +127,12 @@
 
       TestASite.prototype.showLookup = function() {
         this.setPath("lookup");
-        return listener.add(getEl("form"), "submit", this.submitLookup.bind(this));
+        return getEl("form").on("submit", this.submitLookup.bind(this));
       };
 
       TestASite.prototype.showReport = function() {
         this.setPath("report");
-        return listener.add(getEl("form"), "submit", this.submitReport.bind(this));
+        return getEl("form").on("submit", this.submitReport.bind(this));
       };
 
       TestASite.prototype.showErrorModal = function() {
@@ -198,11 +197,11 @@
       TestASite.prototype.doLookup = function(url) {
         var input;
         input = getEl("input");
-        if (input == null) {
+        if (input.el == null) {
           return;
         }
-        if (!input.value.length) {
-          input.value = url;
+        if (!input.value().length) {
+          input.value(url);
         }
         return this.submitLookup();
       };
@@ -216,7 +215,7 @@
             ev.returnValue = false;
           }
         }
-        url = getEl("input").value;
+        url = getEl("input").value();
         if (!(url != null ? url.length : void 0)) {
           return;
         }
@@ -239,11 +238,11 @@
           }
         }
         select = getEl("select");
-        categoryId = parseInt(select != null ? (_ref = select.options[select != null ? select.selectedIndex : void 0]) != null ? _ref.value : void 0 : void 0, 10);
+        categoryId = parseInt((_ref = select.options(select.selectedIndex())) != null ? _ref.value : void 0, 10);
         if (isNaN(categoryId)) {
           return this.showWarning("Please choose a category");
         }
-        url = getEl(".url").textContent;
+        url = getEl(".url").text();
         document.activeElement.blur();
         return this.zn.report({
           url: url,

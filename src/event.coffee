@@ -13,7 +13,7 @@ define ->
       if once is Event.ONCE then @_events[ev].once.push fn
       else                       @_events[ev].all.push  fn
 
-      return
+      return this
 
     off: (ev, fn) ->
       return unless ev? and fn? and @_events?[ev]?
@@ -27,7 +27,7 @@ define ->
       if (index = allArr?.indexOf fn) > -1
         allArr.splice index, 1
 
-      return
+      return this
 
     trigger: (ev) ->
       return unless ev? and @_events? and @_events?[ev]?
@@ -38,6 +38,6 @@ define ->
 
       @_events[ev].once = []
 
-      return
+      return this
 
   return Event

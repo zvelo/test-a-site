@@ -1,6 +1,6 @@
 "use strict"
 
-define [ "listener" ], (listener) ->
+define ["element"], ($) ->
   ## Move the caret to the index position specified.
   ## Assumes that the element has focus
   moveCaret = (elem, index) ->
@@ -214,35 +214,40 @@ define [ "listener" ], (listener) ->
 
   ## Bind event handlers to an element that we need to affect with the polyfill
   newElement = (elem, placeholder) ->
+    elem = $(elem)
+
     ## If the element is part of a form,
     ## make sure the placeholder string is not submitted as a value
-    if elem.form
-      form = elem.form
+    if elem.el.form
+      form = $(elem.el.form)
 
       ## Set a flag on the form so we know it's been handled
       ## (forms can contain multiple inputs)
-      unless form.getAttribute(ATTR_FORM_HANDLED)
-        listener.add form, "submit", makeSubmitHandler(form)
-        form.setAttribute ATTR_FORM_HANDLED, "true"
+      unless form.attr ATTR_FORM_HANDLED
+        form
+          .on("submit", makeSubmitHandler form.el)
+          .attr(ATTR_FORM_HANDLED, "true")
 
     ## Bind event handlers to the element
     ## so we can hide/show the placeholder as appropriate
-    listener.add elem, "focus", makeFocusHandler(elem)
-    listener.add elem, "blur",  makeBlurHandler(elem)
+    elem
+      .on("focus", makeFocusHandler elem.el)
+      .on("blur",  makeBlurHandler  elem.el)
 
     ## If the placeholder should hide on input rather than on focus
     ## we need additional event handlers
     if hideOnInput
-      listener.add elem, "keydown", makeKeydownHandler(elem)
-      listener.add elem, "keyup",   makeKeyupHandler(elem)
-      listener.add elem, "click",   makeClickHandler(elem)
+      elem
+        .on("keydown", makeKeydownHandler elem.el)
+        .on("keyup",   makeKeyupHandler   elem.el)
+        .on("click",   makeClickHandler   elem.el)
 
     ## Remember that we've bound event handlers to this element
-    elem.setAttribute ATTR_EVENTS_BOUND, "true"
-    elem.setAttribute ATTR_CURRENT_VAL, placeholder
+    elem.attr ATTR_EVENTS_BOUND, "true"
+    elem.attr ATTR_CURRENT_VAL, placeholder
 
     ## If the element doesn't have a value, set it to the placeholder string
-    showPlaceholder elem
+    showPlaceholder elem.el
 
   setupPlaceholder = (elem) ->
     ## Get the value of the placeholder attribute, if any.

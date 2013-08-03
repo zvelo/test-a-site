@@ -1,80 +1,10 @@
 (function() {
   "use strict";
-  var createEl, hasClass, transitionEnd,
-    __hasProp = {}.hasOwnProperty,
+  var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  hasClass = function(el, className) {
-    return (' ' + el.className + ' ').indexOf(' ' + className + ' ') > -1;
-  };
-
-  transitionEnd = (function() {
-    var el, name, transEndEventNames;
-    el = document.createElement("zveloFakeElement");
-    transEndEventNames = {
-      WebkitTransition: "webkitTransitionEnd",
-      MozTransition: "transitionend",
-      OTransition: "oTransitionEnd otransitionend",
-      transition: "transitionend"
-    };
-    for (name in transEndEventNames) {
-      if (el.style[name] != null) {
-        return transEndEventNames[name];
-      }
-    }
-  })();
-
-  createEl = function(html) {
-    var container;
-    container = document.createElement("div");
-    container.innerHTML = html;
-    return container.firstChild;
-  };
-
-  define(["listener", "sethtml", "event", "templates"], function(listener, setHtml, Event, templates) {
-    var Modal, addClass, onTransitionEnd, removeClass;
-    onTransitionEnd = function(el, cb) {
-      var transitionEndFn;
-      if (transitionEnd == null) {
-        if (cb != null) {
-          cb();
-        }
-        return;
-      }
-      transitionEndFn = function(ev) {
-        listener.remove(el, transitionEnd, transitionEndFn);
-        if (cb != null) {
-          return cb();
-        }
-      };
-      return listener.add(el, transitionEnd, transitionEndFn);
-    };
-    addClass = function(el, className, cb) {
-      if (!hasClass(el, className)) {
-        el.className += " " + className;
-        if (cb != null) {
-          return onTransitionEnd(el, cb);
-        }
-      } else {
-        if (cb != null) {
-          return cb();
-        }
-      }
-    };
-    removeClass = function(el, className, cb) {
-      var re;
-      if (hasClass(el, className)) {
-        re = new RegExp("(?:^|\\s)" + className + "(?!\\S)", 'g');
-        el.className = el.className.replace(re, "");
-        if (cb != null) {
-          return onTransitionEnd(el, cb);
-        }
-      } else {
-        if (cb != null) {
-          return cb();
-        }
-      }
-    };
+  define(["templates", "event", "element"], function(templates, Event, $) {
+    var Modal;
     Modal = (function(_super) {
       __extends(Modal, _super);
 
@@ -95,8 +25,8 @@
       function Modal(ctx) {
         this.ctx = ctx;
         this._configure();
-        this.el = createEl(templates["modal"](this.ctx));
-        this.animate = hasClass(this.el, "fade");
+        this.el = $(templates["modal"](this.ctx));
+        this.el.animate(this.el.hasClass("fade"));
         this.on("backdrop shown", this._onBackdropShown.bind(this));
         this.on("modal shown", this._onModalShown.bind(this));
         this.on("modal hidden", this._onModalHidden.bind(this));
@@ -107,46 +37,26 @@
         return this.ctx != null ? this.ctx : this.ctx = {};
       };
 
-      Modal.prototype._addClass = function(el, className, cb) {
-        if (!this.animate) {
-          addClass(el, className);
-          if (cb != null) {
-            cb();
-          }
-          return;
-        }
-        return addClass(el, className, cb);
-      };
-
-      Modal.prototype._removeClass = function(el, className, cb) {
-        if (!this.animate) {
-          removeClass(el, className);
-          if (cb != null) {
-            cb();
-          }
-          return;
-        }
-        return removeClass(el, className, cb);
-      };
-
       Modal.prototype._showBackdrop = function() {
         if (this.status !== "showing") {
           return;
         }
-        this.backdrop = createEl("<div class=\"modal-backdrop" + (this.animate ? " fade" : "") + "\"></div>");
-        document.body.appendChild(this.backdrop);
-        if (this.ctx.close) {
-          listener.add(this.backdrop, "click", this.hide.bind(this));
+        this.backdrop = $("<div>", this.el.animate()).addClass("modal-backdrop");
+        if (this.el.animate()) {
+          this.backdrop.addClass("fade");
         }
-        this.backdrop.offsetWidth;
-        return this._addClass(this.backdrop, "in", this.trigger.bind(this, "backdrop shown"));
+        $(document.body).append(this.backdrop);
+        if (this.ctx.close) {
+          this.backdrop.on("click", this.hide.bind(this));
+        }
+        return this.backdrop.reflow().addClass("in", this.trigger.bind(this, "backdrop shown"));
       };
 
       Modal.prototype._hideBackdrop = function() {
         if (!(this.status === "hiding" && (this.backdrop != null))) {
           return;
         }
-        return this._removeClass(this.backdrop, "in", this.trigger.bind(this, "backdrop hidden"));
+        return this.backdrop.removeClass("in", this.trigger.bind(this, "backdrop hidden"));
       };
 
       Modal.prototype._setStatus = function(value) {
@@ -159,12 +69,12 @@
       };
 
       Modal.prototype.setHeader = function(value) {
-        setHtml(this.el.querySelector("h3"), value);
+        this.el.find("h3").html(value);
         return this;
       };
 
       Modal.prototype.setBody = function(value) {
-        setHtml(this.el.querySelector("p"), value);
+        this.el.find("p").html(value);
         return this;
       };
 
@@ -193,28 +103,24 @@
               return that.hide();
             }
           };
-          listener.add(document.body, "keyup", this.onKeyUp);
+          $(document.body).on("keyup", this.onKeyUp);
         }
-        document.body.appendChild(this.el);
+        $(document.body).append(this.el);
         return this._showBackdrop();
       };
 
       Modal.prototype._onBackdropShown = function() {
-        var btn, xBtn;
         if (this.status !== "showing") {
           return;
         }
-        this.el.style.display = "block";
-        this.el.offsetWidth;
+        this.el.display("block").reflow();
         if (this.ctx.btn) {
-          btn = this.el.querySelector(".btn.btn-primary");
-          listener.add(btn, "click", this.hide.bind(this));
+          this.el.find(".btn.btn-primary").on("click", this.hide.bind(this));
         }
         if (this.ctx.close) {
-          xBtn = this.el.querySelector(".close");
-          listener.add(xBtn, "click", this.hide.bind(this));
+          this.el.find(".close").on("click", this.hide.bind(this));
         }
-        return this._addClass(this.el, "in", this.trigger.bind(this, "modal shown"));
+        return this.el.addClass("in", this.trigger.bind(this, "modal shown"));
       };
 
       Modal.prototype._onModalShown = function() {
@@ -227,8 +133,7 @@
       };
 
       Modal.prototype._onModalHidden = function() {
-        document.body.removeChild(this.el);
-        this.el.style.display = "none";
+        $(document.body).remove(this.el.display("none"));
         return this._hideBackdrop();
       };
 
@@ -240,16 +145,18 @@
           return;
         }
         this._setStatus("hiding");
-        this._removeClass(this.el, "in", this.trigger.bind(this, "modal hidden"));
+        this.el.removeClass("in", this.trigger.bind(this, "modal hidden"));
         return this;
       };
 
       Modal.prototype._removeBackdrop = function() {
+        var body;
+        body = $(document.body);
         if (this.onKeyUp != null) {
-          listener.remove(document.body, "keyup", this.onKeyUp, true);
+          body.off("keyup", this.onKeyUp);
         }
         if (this.backdrop != null) {
-          document.body.removeChild(this.backdrop);
+          body.remove(this.backdrop);
         }
         if (Modal.current === this) {
           delete Modal.current;

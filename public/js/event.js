@@ -25,6 +25,7 @@
         } else {
           this._events[ev].all.push(fn);
         }
+        return this;
       };
 
       Event.prototype.off = function(ev, fn) {
@@ -40,6 +41,7 @@
         if ((index = allArr != null ? allArr.indexOf(fn) : void 0) > -1) {
           allArr.splice(index, 1);
         }
+        return this;
       };
 
       Event.prototype.trigger = function(ev) {
@@ -59,6 +61,7 @@
           fn.apply(this, args);
         }
         this._events[ev].once = [];
+        return this;
       };
 
       return Event;
