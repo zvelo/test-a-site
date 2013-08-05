@@ -1,5 +1,5 @@
 (function() {
-  var onComplete, onTransitionEnd, transitionEnd;
+  var transitionEnd;
 
   transitionEnd = (function() {
     var el, name, transEndEventNames;
@@ -16,26 +16,6 @@
       }
     }
   })();
-
-  onTransitionEnd = function(el, resolver) {
-    var transitionEndFn;
-    if (transitionEnd == null) {
-      return resolver.resolve(el);
-    }
-    transitionEndFn = function(ev) {
-      el.off(transitionEnd, transitionEndFn);
-      return resolver.resolve(el);
-    };
-    return el.on(transitionEnd, transitionEndFn);
-  };
-
-  onComplete = function(el, resolver) {
-    if (el._animate) {
-      return onTransitionEnd(el, resolver);
-    } else {
-      return resolver.resolve(el);
-    }
-  };
 
   define(["when"], function(whn) {
     var $, Element;
@@ -169,7 +149,7 @@
           resolver.resolve(this);
         } else {
           this.el.className += " " + className;
-          onComplete(this, resolver);
+          this._onComplete(resolver);
         }
         return this;
       };
@@ -191,9 +171,29 @@
         } else {
           re = new RegExp("(?:^|\\s)" + className + "(?!\\S)", 'g');
           this.el.className = this.el.className.replace(re, "");
-          onComplete(this, resolver);
+          this._onComplete(resolver);
         }
         return this;
+      };
+
+      Element.prototype._onComplete = function(resolver) {
+        if (this._animate) {
+          return this._onTransitionEnd(resolver);
+        } else {
+          return resolver.resolve(this);
+        }
+      };
+
+      Element.prototype._onTransitionEnd = function(resolver) {
+        var transitionEndFn;
+        if (transitionEnd == null) {
+          return resolver.resolve(this);
+        }
+        transitionEndFn = (function(ev) {
+          this.off(transitionEnd, transitionEndFn);
+          return resolver.resolve(this);
+        }).bind(this);
+        return this.on(transitionEnd, transitionEndFn);
       };
 
       Element.prototype.append = function(el) {

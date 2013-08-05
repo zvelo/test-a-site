@@ -10,19 +10,6 @@ transitionEnd = ( ->
     return transEndEventNames[name] if el.style[name]?
 )()
 
-onTransitionEnd = (el, resolver) ->
-  return resolver.resolve(el) unless transitionEnd?
-
-  transitionEndFn = (ev) ->
-    el.off transitionEnd, transitionEndFn
-    resolver.resolve(el)
-
-  el.on transitionEnd, transitionEndFn
-
-onComplete = (el, resolver) ->
-  if el._animate then onTransitionEnd el, resolver
-  else resolver.resolve(el)
-
 define ["when"], (whn) ->
   class Element
     constructor: (@el, @_animate) ->
@@ -115,7 +102,7 @@ define ["when"], (whn) ->
         resolver.resolve(this)
       else
         @el.className += " #{className}"
-        onComplete this, resolver
+        @_onComplete resolver
 
       return this
 
@@ -131,9 +118,23 @@ define ["when"], (whn) ->
       else
         re = new RegExp "(?:^|\\s)#{className}(?!\\S)", 'g'
         @el.className = @el.className.replace re , ""
-        onComplete this, resolver
+        @_onComplete resolver
 
       return this
+
+    _onComplete: (resolver) ->
+      if @_animate then @_onTransitionEnd resolver
+      else resolver.resolve this
+
+    _onTransitionEnd: (resolver) ->
+      return resolver.resolve this unless transitionEnd?
+
+      transitionEndFn = ((ev) ->
+        @off transitionEnd, transitionEndFn
+        resolver.resolve this
+      ).bind(this)
+
+      @on transitionEnd, transitionEndFn
 
     append: (el) ->
       return this unless @el? and el?
