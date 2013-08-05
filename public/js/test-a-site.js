@@ -1,12 +1,10 @@
 (function() {
   "use strict";
   define(["templates", "domReady", "zvelonet", "modal", "element"], function(templates, domReady, ZveloNET, Modal, $) {
-    var TestASite, getEl;
-    getEl = function(selector) {
-      return $(document).find("#zvelonet " + (selector || ""));
-    };
+    var TestASite;
     TestASite = (function() {
-      function TestASite() {
+      function TestASite(baseSelector) {
+        this.baseSelector = baseSelector;
         this.zn = new ZveloNET({
           znhost: "https://query.zvelo.com:3333",
           /*
@@ -25,6 +23,10 @@
         domReady(this.onDomReady.bind(this));
       }
 
+      TestASite.prototype.getEl = function(selector) {
+        return $(document).find("" + this.baseSelector + " " + (selector || ""));
+      };
+
       TestASite.prototype.onDomReady = function() {
         var docEl;
         docEl = document.documentElement;
@@ -40,8 +42,8 @@
         if (Modal.current != null) {
           return;
         }
-        input = getEl("input");
-        lookupBtn = getEl("button");
+        input = this.getEl("input");
+        lookupBtn = this.getEl("button");
         if (!((input.el != null) && (lookupBtn.el != null))) {
           return;
         }
@@ -97,8 +99,8 @@
           this.data = {};
         }
         this.data.page = tpl;
-        getEl().html(templates[tpl](this.data));
-        lookup = getEl(".btn.lookup").on("click", this.show.bind(this, "lookup"));
+        this.getEl().html(templates[tpl](this.data));
+        lookup = this.getEl(".btn.lookup").on("click", this.show.bind(this, "lookup"));
         switch (tpl) {
           case "lookup":
             return this.showLookup();
@@ -119,7 +121,7 @@
 
       TestASite.prototype.showResult = function(lookup) {
         this.setPath("result", this.data.url);
-        return getEl(".btn.report").on("click", this.show.bind(this, "report", {
+        return this.getEl(".btn.report").on("click", this.show.bind(this, "report", {
           url: this.data.url,
           categories: this.categories
         }));
@@ -127,12 +129,12 @@
 
       TestASite.prototype.showLookup = function() {
         this.setPath("lookup");
-        return getEl("form").on("submit", this.submitLookup.bind(this));
+        return this.getEl("form").on("submit", this.submitLookup.bind(this));
       };
 
       TestASite.prototype.showReport = function() {
         this.setPath("report");
-        return getEl("form").on("submit", this.submitReport.bind(this));
+        return this.getEl("form").on("submit", this.submitReport.bind(this));
       };
 
       TestASite.prototype.showErrorModal = function() {
@@ -196,7 +198,7 @@
 
       TestASite.prototype.doLookup = function(url) {
         var input;
-        input = getEl("input");
+        input = this.getEl("input");
         if (input.el == null) {
           return;
         }
@@ -215,7 +217,7 @@
             ev.returnValue = false;
           }
         }
-        url = getEl("input").value();
+        url = this.getEl("input").value();
         if (!(url != null ? url.length : void 0)) {
           return;
         }
@@ -237,12 +239,12 @@
             ev.returnValue = false;
           }
         }
-        select = getEl("select");
+        select = this.getEl("select");
         categoryId = parseInt((_ref = select.options(select.selectedIndex())) != null ? _ref.value : void 0, 10);
         if (isNaN(categoryId)) {
           return this.showWarning("Please choose a category");
         }
-        url = getEl(".url").text();
+        url = this.getEl(".url").text();
         document.activeElement.blur();
         return this.zn.report({
           url: url,
@@ -301,7 +303,7 @@
       return TestASite;
 
     })();
-    return new TestASite;
+    return new TestASite("#zvelonet");
   });
 
 }).call(this);

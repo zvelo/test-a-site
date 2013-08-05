@@ -47,6 +47,9 @@
         if (this._animate == null) {
           this._animate = true;
         }
+        if (this.el == null) {
+          return;
+        }
         switch (typeof this.el) {
           case "string":
             container = document.createElement("div");

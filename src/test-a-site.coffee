@@ -7,11 +7,8 @@ define [
   "modal"
   "element"
 ], (templates, domReady, ZveloNET, Modal, $) ->
-  getEl = (selector) ->
-    return $(document).find("#zvelonet #{selector or ""}")
-
   class TestASite
-    constructor: ->
+    constructor: (@baseSelector) ->
       @zn = new ZveloNET
         znhost: "https://query.zvelo.com:3333"  ## TODO(jrubin) delete
         ###
@@ -27,6 +24,9 @@ define [
         useCache: false
 
       domReady @onDomReady.bind(this)
+
+    getEl: (selector) ->
+      return $(document).find("#{@baseSelector} #{selector or ""}")
 
     onDomReady: ->
       docEl = document.documentElement
@@ -46,8 +46,8 @@ define [
     onKeyDown: (ev) ->
       return if Modal.current?
 
-      input     = getEl "input"
-      lookupBtn = getEl "button"
+      input     = @getEl "input"
+      lookupBtn = @getEl "button"
 
       return unless input.el? and lookupBtn.el?
       return if document.activeElement is input.el
@@ -87,11 +87,11 @@ define [
       @data = data or {}
       @data = {} unless @data?.url? or path?
       @data.page = tpl
-      getEl().html templates[tpl](@data)
+      @getEl().html templates[tpl](@data)
 
       ## setup listeners
 
-      lookup = getEl(".btn.lookup")
+      lookup = @getEl(".btn.lookup")
         .on("click", @show.bind(this, "lookup"))
 
       switch tpl
@@ -107,19 +107,19 @@ define [
 
     showResult: (lookup) ->
       @setPath "result", @data.url
-      getEl(".btn.report")
+      @getEl(".btn.report")
         .on("click", @show.bind(this, "report",
           url: @data.url
           categories: @categories))
 
     showLookup: ->
       @setPath "lookup"
-      getEl("form")
+      @getEl("form")
         .on("submit", @submitLookup.bind this)
 
     showReport: ->
       @setPath "report"
-      getEl("form")
+      @getEl("form")
         .on("submit", @submitReport.bind this)
 
     showErrorModal: ->
@@ -173,7 +173,7 @@ define [
       @authModal.setBody body
 
     doLookup: (url) ->
-      input = getEl "input"
+      input = @getEl "input"
       return unless input.el?
       input.value(url) unless input.value().length
       @submitLookup()
@@ -182,7 +182,7 @@ define [
       if ev?.preventDefault? then ev.preventDefault()
       else ev?.returnValue = false
 
-      url = getEl("input").value()
+      url = @getEl("input").value()
 
       return unless url?.length
 
@@ -200,12 +200,12 @@ define [
       if ev?.preventDefault? then ev.preventDefault()
       else ev?.returnValue = false
 
-      select = getEl "select"
+      select = @getEl "select"
       categoryId = parseInt select.options(select.selectedIndex())?.value, 10
 
       return @showWarning "Please choose a category" if isNaN categoryId
 
-      url = getEl(".url").text()
+      url = @getEl(".url").text()
 
       document.activeElement.blur()
 
@@ -254,4 +254,4 @@ define [
         close: true
         onClose: @show.bind(this, "lookup")).show()
 
-  return new TestASite
+  return new TestASite "#zvelonet"

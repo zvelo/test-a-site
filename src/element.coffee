@@ -30,6 +30,8 @@ define ["when"], (whn) ->
       ## resolve immediately, not after transitions end
       @_animate ?= true
 
+      return unless @el?
+
       switch typeof @el
         when "string"
           container = document.createElement "div"
