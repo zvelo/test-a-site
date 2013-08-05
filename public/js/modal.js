@@ -42,6 +42,9 @@
           return;
         }
         this.backdrop = $("<div>", this.el.animate()).addClass("modal-backdrop");
+        if (this.ctx["class"] != null) {
+          this.backdrop.addClass(this.ctx["class"]);
+        }
         if (this.el.animate()) {
           this.backdrop.addClass("fade");
         }

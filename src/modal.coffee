@@ -32,7 +32,8 @@ define [ "templates", "event", "element" ], (templates, Event, $) ->
       @backdrop = $("<div>", @el.animate())
         .addClass("modal-backdrop")
 
-      @backdrop.addClass("fade") if @el.animate()
+      @backdrop.addClass @ctx.class if @ctx.class?
+      @backdrop.addClass "fade"     if @el.animate()
 
       $(document.body).append(@backdrop)
 

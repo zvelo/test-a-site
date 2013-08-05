@@ -3,8 +3,11 @@
   define(["templates", "domReady", "zvelonet", "modal", "element"], function(templates, domReady, ZveloNET, Modal, $) {
     var TestASite;
     TestASite = (function() {
-      function TestASite(baseSelector) {
+      function TestASite(baseSelector, bodyClass, modalClass) {
         this.baseSelector = baseSelector;
+        this.bodyClass = bodyClass;
+        this.modalClass = modalClass;
+        window.Modal = Modal;
         this.zn = new ZveloNET({
           znhost: "https://query.zvelo.com:3333",
           /*
@@ -23,16 +26,11 @@
         domReady(this.onDomReady.bind(this));
       }
 
-      TestASite.prototype.getEl = function(selector) {
-        return $(document).find("" + this.baseSelector + " " + (selector || ""));
-      };
-
       TestASite.prototype.onDomReady = function() {
-        var docEl;
-        docEl = document.documentElement;
-        docEl.className = docEl.className.replace(/\bno-js\b/, '') + ' js';
+        $(document.documentElement).removeClass("no-js").addClass("js");
         $(document).on("keydown", this.onKeyDown.bind(this));
         window.onpopstate = this.onPopState.bind(this);
+        this.container = $(document).find(this.baseSelector).addClass(this.bodyClass);
         this.showLoadingModal();
         return this.zn.ready.then(this.znReady.bind(this)).then(this.route.bind(this)).otherwise(this.showErrorModal.bind(this));
       };
@@ -42,8 +40,8 @@
         if (Modal.current != null) {
           return;
         }
-        input = this.getEl("input");
-        lookupBtn = this.getEl("button");
+        input = this.container.find("input");
+        lookupBtn = this.container.find("button");
         if (!((input.el != null) && (lookupBtn.el != null))) {
           return;
         }
@@ -99,8 +97,8 @@
           this.data = {};
         }
         this.data.page = tpl;
-        this.getEl().html(templates[tpl](this.data));
-        lookup = this.getEl(".btn.lookup").on("click", this.show.bind(this, "lookup"));
+        this.container.html(templates[tpl](this.data));
+        lookup = this.container.find(".btn.lookup").on("click", this.show.bind(this, "lookup"));
         switch (tpl) {
           case "lookup":
             return this.showLookup();
@@ -121,7 +119,7 @@
 
       TestASite.prototype.showResult = function(lookup) {
         this.setPath("result", this.data.url);
-        return this.getEl(".btn.report").on("click", this.show.bind(this, "report", {
+        return this.container.find(".btn.report").on("click", this.show.bind(this, "report", {
           url: this.data.url,
           categories: this.categories
         }));
@@ -129,12 +127,12 @@
 
       TestASite.prototype.showLookup = function() {
         this.setPath("lookup");
-        return this.getEl("form").on("submit", this.submitLookup.bind(this));
+        return this.container.find("form").on("submit", this.submitLookup.bind(this));
       };
 
       TestASite.prototype.showReport = function() {
         this.setPath("report");
-        return this.getEl("form").on("submit", this.submitReport.bind(this));
+        return this.container.find("form").on("submit", this.submitReport.bind(this));
       };
 
       TestASite.prototype.showErrorModal = function() {
@@ -151,6 +149,7 @@
           console.error(err, err != null ? err.stack : void 0);
         }
         return new Modal({
+          "class": "" + this.modalClass + " " + this.bodyClass,
           header: "Error!",
           btn: "Dismiss",
           body: err,
@@ -160,6 +159,7 @@
 
       TestASite.prototype.showWarning = function(body, cb) {
         return new Modal({
+          "class": "" + this.modalClass + " " + this.bodyClass,
           header: "Warning",
           body: body,
           btn: "OK",
@@ -170,6 +170,7 @@
 
       TestASite.prototype.showLoadingModal = function() {
         return this.loadingModal = new Modal({
+          "class": "" + this.modalClass + " " + this.bodyClass,
           header: "Loading...",
           body: "Initializing zveloNET..."
         }).show();
@@ -179,7 +180,7 @@
         var body;
         if (this.authModal == null) {
           this.authModal = new Modal({
-            "class": "authorizing",
+            "class": "" + this.modalClass + " " + this.bodyClass + " authorizing",
             header: "Authorizing..."
           });
         }
@@ -198,7 +199,7 @@
 
       TestASite.prototype.doLookup = function(url) {
         var input;
-        input = this.getEl("input");
+        input = this.container.find("input");
         if (input.el == null) {
           return;
         }
@@ -217,7 +218,7 @@
             ev.returnValue = false;
           }
         }
-        url = this.getEl("input").value();
+        url = this.container.find("input").value();
         if (!(url != null ? url.length : void 0)) {
           return;
         }
@@ -239,12 +240,12 @@
             ev.returnValue = false;
           }
         }
-        select = this.getEl("select");
+        select = this.container.find("select");
         categoryId = parseInt((_ref = select.options(select.selectedIndex())) != null ? _ref.value : void 0, 10);
         if (isNaN(categoryId)) {
           return this.showWarning("Please choose a category");
         }
-        url = this.getEl(".url").text();
+        url = this.container.find(".url").text();
         document.activeElement.blur();
         return this.zn.report({
           url: url,
@@ -292,6 +293,7 @@
 
       TestASite.prototype.onReportResponse = function(data) {
         return new Modal({
+          "class": "" + this.modalClass + " " + this.bodyClass,
           header: "Thank you",
           body: "We have received your request.",
           btn: "Close",
@@ -303,7 +305,7 @@
       return TestASite;
 
     })();
-    return new TestASite("#zvelonet");
+    return new TestASite("#zvelonet", "zvelonet-body", "zvelonet-modal");
   });
 
 }).call(this);

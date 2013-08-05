@@ -8,7 +8,8 @@ define [
   "element"
 ], (templates, domReady, ZveloNET, Modal, $) ->
   class TestASite
-    constructor: (@baseSelector) ->
+    constructor: (@baseSelector, @bodyClass, @modalClass) ->
+      window.Modal = Modal
       @zn = new ZveloNET
         znhost: "https://query.zvelo.com:3333"  ## TODO(jrubin) delete
         ###
@@ -25,16 +26,17 @@ define [
 
       domReady @onDomReady.bind(this)
 
-    getEl: (selector) ->
-      return $(document).find("#{@baseSelector} #{selector or ""}")
-
     onDomReady: ->
-      docEl = document.documentElement
-      docEl.className = docEl.className.replace(/\bno-js\b/,'') + ' js'
+      $(document.documentElement)
+        .removeClass("no-js")
+        .addClass("js")
 
       $(document).on("keydown", @onKeyDown.bind this)
 
       window.onpopstate = @onPopState.bind(this)
+
+      @container = $(document).find(@baseSelector)
+        .addClass(@bodyClass)
 
       @showLoadingModal()
 
@@ -46,8 +48,8 @@ define [
     onKeyDown: (ev) ->
       return if Modal.current?
 
-      input     = @getEl "input"
-      lookupBtn = @getEl "button"
+      input     = @container.find "input"
+      lookupBtn = @container.find "button"
 
       return unless input.el? and lookupBtn.el?
       return if document.activeElement is input.el
@@ -87,11 +89,11 @@ define [
       @data = data or {}
       @data = {} unless @data?.url? or path?
       @data.page = tpl
-      @getEl().html templates[tpl](@data)
+      @container.html templates[tpl](@data)
 
       ## setup listeners
 
-      lookup = @getEl(".btn.lookup")
+      lookup = @container.find(".btn.lookup")
         .on("click", @show.bind(this, "lookup"))
 
       switch tpl
@@ -107,19 +109,19 @@ define [
 
     showResult: (lookup) ->
       @setPath "result", @data.url
-      @getEl(".btn.report")
+      @container.find(".btn.report")
         .on("click", @show.bind(this, "report",
           url: @data.url
           categories: @categories))
 
     showLookup: ->
       @setPath "lookup"
-      @getEl("form")
+      @container.find("form")
         .on("submit", @submitLookup.bind this)
 
     showReport: ->
       @setPath "report"
-      @getEl("form")
+      @container.find("form")
         .on("submit", @submitReport.bind this)
 
     showErrorModal: ->
@@ -130,6 +132,7 @@ define [
       console?.error err, err?.stack
 
       new Modal(
+        class: "#{@modalClass} #{@bodyClass}"
         header: "Error!"
         btn: "Dismiss"
         body: err
@@ -137,6 +140,7 @@ define [
 
     showWarning: (body, cb) ->
       new Modal(
+        class: "#{@modalClass} #{@bodyClass}"
         header: "Warning"
         body: body
         btn: "OK"
@@ -145,12 +149,13 @@ define [
 
     showLoadingModal: ->
       @loadingModal = new Modal(
+        class: "#{@modalClass} #{@bodyClass}"
         header: "Loading..."
         body: "Initializing zveloNET...").show()
 
     onHashMash: ->
       @authModal ?= new Modal
-        class: "authorizing"
+        class: "#{@modalClass} #{@bodyClass} authorizing"
         header: "Authorizing..."
 
       body = """
@@ -173,7 +178,7 @@ define [
       @authModal.setBody body
 
     doLookup: (url) ->
-      input = @getEl "input"
+      input = @container.find "input"
       return unless input.el?
       input.value(url) unless input.value().length
       @submitLookup()
@@ -182,7 +187,7 @@ define [
       if ev?.preventDefault? then ev.preventDefault()
       else ev?.returnValue = false
 
-      url = @getEl("input").value()
+      url = @container.find("input").value()
 
       return unless url?.length
 
@@ -200,12 +205,12 @@ define [
       if ev?.preventDefault? then ev.preventDefault()
       else ev?.returnValue = false
 
-      select = @getEl "select"
+      select = @container.find "select"
       categoryId = parseInt select.options(select.selectedIndex())?.value, 10
 
       return @showWarning "Please choose a category" if isNaN categoryId
 
-      url = @getEl(".url").text()
+      url = @container.find(".url").text()
 
       document.activeElement.blur()
 
@@ -248,10 +253,11 @@ define [
 
     onReportResponse: (data) ->
       new Modal(
+        class: "#{@modalClass} #{@bodyClass}"
         header: "Thank you"
         body: "We have received your request."
         btn: "Close"
         close: true
         onClose: @show.bind(this, "lookup")).show()
 
-  return new TestASite "#zvelonet"
+  return new TestASite "#zvelonet", "zvelonet-body", "zvelonet-modal"
