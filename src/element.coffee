@@ -55,7 +55,19 @@ define ["when"], (whn) ->
 
       return this
 
-    text: -> return @el.textContent
+    text: ->
+      return @el.nodeValue if @el.nodeType in [3, 4]
+      return "" unless @el.nodeType in [1, 9, 11]
+      return @el.textContent if typeof @el.textContent is "string"
+
+      ret = ""
+      elem = $(@el.firstChild)
+
+      while elem.el
+        ret += elem.text()
+        elem = $(elem.el.nextSibling)
+
+      return ret
 
     on: (ev, fn) ->
       return this unless @el?

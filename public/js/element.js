@@ -85,7 +85,23 @@
       };
 
       Element.prototype.text = function() {
-        return this.el.textContent;
+        var elem, ret, _ref, _ref1;
+        if ((_ref = this.el.nodeType) === 3 || _ref === 4) {
+          return this.el.nodeValue;
+        }
+        if ((_ref1 = this.el.nodeType) !== 1 && _ref1 !== 9 && _ref1 !== 11) {
+          return "";
+        }
+        if (typeof this.el.textContent === "string") {
+          return this.el.textContent;
+        }
+        ret = "";
+        elem = $(this.el.firstChild);
+        while (elem.el) {
+          ret += elem.text();
+          elem = $(elem.el.nextSibling);
+        }
+        return ret;
       };
 
       Element.prototype.on = function(ev, fn) {
