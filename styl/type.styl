@@ -1,0 +1,57 @@
+/*
+p
+  margin 0 0 $baseLineHeight / 2
+
+.lead
+  margin-bottom $baseLineHeight
+  font-weight 200
+*/
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6
+  margin ($baseLineHeight / 2) 0
+  font-family $headingsFontFamily
+  font-weight $headingsFontWeight
+  line-height $baseLineHeight
+  color $headingsColor
+  text-rendering optimizelegibility
+
+  /*
+  small
+    font-weight normal
+    line-height 1
+    color $grayLight
+  */
+
+h1,
+h2,
+h3
+  line-height $baseLineHeight * 2
+
+h1
+  font-size $baseFontSize * 2.75
+
+h2
+  font-size $baseFontSize * 2.25
+
+h3
+  font-size $baseFontSize * 1.75
+
+h4
+  font-size $baseFontSize * 1.25
+
+h5
+  font-size $baseFontSize
+
+h6
+  font-size $baseFontSize * 0.85
+
+input,
+label,
+.lead
+  font-size 2 * $containerFontSize
+  line-height 2.5 * $containerFontSize
