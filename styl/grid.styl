@@ -1,0 +1,22 @@
+columns(num)
+  display block
+  float left
+
+  margin-left $fluidGridGutterWidth
+
+  @media (min-width: 1200px)
+    margin-left $fluidGridGutterWidth1200
+
+  @media (min-width: 768px) and (max-width: 979px)
+    margin-left $fluidGridGutterWidth768
+
+  &:first-child
+    margin-left 0
+
+  width ($fluidGridColumnWidth * num) + unit($fluidGridGutterWidth * (num - 1), "")
+
+  @media (min-width: 1200px)
+    width ($fluidGridColumnWidth1200 * num) + unit($fluidGridGutterWidth1200 * (num - 1), "")
+
+  @media (min-width: 768px) and (max-width: 979px)
+    width ($fluidGridColumnWidth768 * num) + unit($fluidGridGutterWidth768 * (num - 1), "")

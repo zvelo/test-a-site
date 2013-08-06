@@ -7,7 +7,6 @@
         this.baseSelector = baseSelector;
         this.bodyClass = bodyClass;
         this.modalClass = modalClass;
-        window.Modal = Modal;
         this.zn = new ZveloNET({
           znhost: "https://query.zvelo.com:3333",
           /*

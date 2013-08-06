@@ -9,7 +9,6 @@ define [
 ], (templates, domReady, ZveloNET, Modal, $) ->
   class TestASite
     constructor: (@baseSelector, @bodyClass, @modalClass) ->
-      window.Modal = Modal
       @zn = new ZveloNET
         znhost: "https://query.zvelo.com:3333"  ## TODO(jrubin) delete
         ###

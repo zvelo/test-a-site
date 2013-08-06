@@ -48,7 +48,7 @@ $btnInfoBackgroundHighlight    = #2f96b4
 $btnSuccessBackground          = #62c462
 $btnSuccessBackgroundHighlight = #51a351
 
-$btnWarningBackground          = lighten($orange, 15%)
+$btnWarningBackground          = lighten($orange, 30%)
 $btnWarningBackgroundHighlight = $orange
 
 $btnDangerBackground           = #ee5f5b
@@ -59,6 +59,29 @@ $btnInverseBackgroundHighlight = $grayDarker
 
 $zindexModalBackdrop = 1040
 $zindexModal         = 1050
+
+$gridColumns     = 12
+$gridColumnWidth = 60px
+$gridGutterWidth = 20px
+$gridRowWidth    = ($gridColumns * $gridColumnWidth) + ($gridGutterWidth * ($gridColumns - 1))
+
+$gridColumnWidth1200 = 70px
+$gridGutterWidth1200 = 30px
+$gridRowWidth1200    = ($gridColumns * $gridColumnWidth1200) + ($gridGutterWidth1200 * ($gridColumns - 1))
+
+$gridColumnWidth768 = 42px
+$gridGutterWidth768 = 20px
+$gridRowWidth768    = ($gridColumns * $gridColumnWidth768) + ($gridGutterWidth768 * ($gridColumns - 1))
+
+$fluidGridColumnWidth = unit($gridColumnWidth / $gridRowWidth * 100, "%")
+$fluidGridGutterWidth = unit($gridGutterWidth / $gridRowWidth * 100, "%")
+
+$fluidGridColumnWidth1200 = unit($gridColumnWidth1200 / $gridRowWidth1200 * 100, "%")
+$fluidGridGutterWidth1200 = unit($gridGutterWidth1200 / $gridRowWidth1200 * 100, "%")
+
+$fluidGridColumnWidth768 = unit($gridColumnWidth768 / $gridRowWidth768 * 100, "%")
+$fluidGridGutterWidth768 = unit($gridGutterWidth768 / $gridRowWidth768 * 100, "%")
+
 
 
 

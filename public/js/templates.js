@@ -129,7 +129,7 @@ function program4(depth0,data) {
 function program6(depth0,data) {
   
   var buffer = "", stack1;
-  buffer += "\n  <div class=\"span3 reputation reputation";
+  buffer += "\n  <div class=\"reputation reputation";
   if (stack1 = helpers.reputationId) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.reputationId; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
@@ -151,7 +151,7 @@ function program8(depth0,data) {
   return "\n  <button class=\"btn btn-large btn-warning report\" title=\"Report this URL as miscategorized\">Miscategorized?</button>\n  ";
   }
 
-  buffer += "<div class=\"inner-container row-fluid\">\n  <div class=\"span9\">\n    <p class=\"lead url\" title=\"";
+  buffer += "<div class=\"inner-container\">\n  <div class=\"results\">\n    <p class=\"lead url\" title=\"";
   if (stack1 = helpers.url) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.url; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
