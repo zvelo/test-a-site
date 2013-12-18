@@ -1,0 +1,13 @@
+{
+    "github": {
+        "repo": "test-a-site"
+    },
+    "pivotal_tracker": {
+        "project": {
+            "id": 923852
+        }
+    },
+    "hipchat": {
+        "room": "Web"
+    }
+}
