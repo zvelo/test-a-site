@@ -1,0 +1,13 @@
+{
+    "github": {
+        "repo": "test-a-site"
+    },
+    "pivotal_tracker": {
+        "project": {
+            "id": 947108
+        }
+    },
+    "hipchat": {
+        "room": "zveloNET"
+    }
+}

@@ -9,14 +9,14 @@
         this.modalClass = modalClass;
         this.zn = new ZveloNET({
           znhost: "https://query.zvelo.com:3333",
+
           /*
           these credentials are ok to be publicly visible
           they should only be used on zvelo.com though
           zvelo may revoke them at any time
           when writing your own code,
           please request your own credentials from zvelo
-          */
-
+           */
           username: "zvelo.com",
           password: "7j25jx7XVAe",
           hashMashWorker: "./js/vendor/hashmash/worker.min.js",
@@ -309,6 +309,4 @@
 
 }).call(this);
 
-/*
-//@ sourceMappingURL=test-a-site.js.map
-*/
+//# sourceMappingURL=test-a-site.js.map

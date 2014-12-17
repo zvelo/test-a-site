@@ -72,6 +72,4 @@
 
 }).call(this);
 
-/*
-//@ sourceMappingURL=event.js.map
-*/
+//# sourceMappingURL=event.js.map

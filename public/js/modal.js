@@ -187,6 +187,4 @@
 
 }).call(this);
 
-/*
-//@ sourceMappingURL=modal.js.map
-*/
+//# sourceMappingURL=modal.js.map
